@@ -1,0 +1,309 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply text-white bg-dark scroll-smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply min-h-screen antialiased;
+  }
+}
+
+@layer components {
+  .nav-link {
+    @apply px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors duration-200;
+  }
+  
+  .button-primary {
+    @apply px-4 py-2 bg-dark-100 hover:bg-dark-200 text-white font-medium rounded-lg transition-colors duration-200;
+  }
+  
+  .button-secondary {
+    @apply px-4 py-2 bg-dark-100 hover:bg-dark-200 text-white rounded-lg transition-colors duration-200;
+  }
+  
+  .input-primary {
+    @apply px-4 py-2 bg-dark-50 border border-dark-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent;
+  }
+}
+
+/* Gradient Effects */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 animate-gradient;
+}
+
+.hover-gradient-effect {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.hover-gradient-effect::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    800px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+    rgba(255, 255, 255, 0.15),
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.hover-gradient-effect:hover::before {
+  opacity: 1;
+}
+
+/* Scrollbar Styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(17, 17, 17, 0.3);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(17, 17, 17, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Custom Scrolling Areas */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Animations */
+@keyframes gradient {
+  0%, 100% {
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+  50% {
+    background-size: 200% 200%;
+    background-position: right center;
+  }
+}
+
+.animate-gradient {
+  animation: gradient 8s linear infinite;
+}
+
+/* White Glow Effects */
+.white-glow {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.white-glow-text {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.white-glow-hover {
+  transition: box-shadow 0.3s ease;
+}
+
+.white-glow-hover:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+/* Code Editor Styling */
+.code-editor {
+  font-family: 'JetBrains Mono', monospace;
+  @apply bg-transparent text-white;
+}
+
+.code-editor::selection {
+  @apply bg-white/20;
+}
+
+/* White Accents */
+.white-gradient-bg {
+  background: linear-gradient(135deg, #424242 0%, #FFFFFF 50%, #E4E4E4 100%);
+}
+
+.white-gradient-border {
+  border-image: linear-gradient(to right, #FFFFFF, #BDBDBD) 1;
+}
+
+/* Underline animation for navbar links */
+.nav-underline {
+  position: relative;
+}
+
+.nav-underline::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #FFFFFF, #E4E4E4);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease-in-out;
+}
+
+.nav-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Glowing effect for active links */
+.nav-active {
+  position: relative;
+  color: #FFFFFF;
+}
+
+.nav-active::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #FFFFFF, #E4E4E4);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* Mobile nav transition effects */
+.mobile-nav-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.mobile-nav-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.mobile-nav-exit {
+  opacity: 1;
+}
+
+.mobile-nav-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Dropdown animation */
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.dropdown-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+/* Fancy blur effect for dropdowns and modals */
+.backdrop-blur-fancy {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Replace blue-glow with white-glow */
+.white-glow {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.white-glow-text {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.white-glow-hover {
+  transition: box-shadow 0.3s ease;
+}
+
+.white-glow-hover:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+.gradient-border {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: linear-gradient(to right, #FFFFFF, #BDBDBD);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
