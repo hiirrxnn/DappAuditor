@@ -1,6 +1,6 @@
 // constants/contracts.ts
 export const CONTRACT_ADDRESSES = {
-  sepolia: '0xd9145CCE52D386f254917e481eB44e9943F39138', // You'll need to deploy your contract here
+  sepolia: '0xc74d51537e867199350909DaFd594B8428bc5142', // You'll need to deploy your contract here
 } as const;
 
 export const AUDIT_REGISTRY_ABI = [

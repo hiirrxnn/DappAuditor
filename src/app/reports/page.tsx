@@ -13,7 +13,8 @@ import {
   FileText,
   ListChecks,
   CircleNotch,
-  Copy
+  Copy,
+  Warning
 } from 'phosphor-react';
 import Image from 'next/image';
 import { CHAIN_CONFIG } from '@/utils/web3';
@@ -41,6 +42,8 @@ export default function ReportsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<AuditReport | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     chain: 'all',
@@ -48,114 +51,161 @@ export default function ReportsPage() {
     minStars: 0
   });
 
-  const getSepoliaExplorerLink = (report: AuditReport): string => {
-    // Format the transaction hash for explorer URL
-    const formattedHash = report.transactionHash.startsWith('0x')
-      ? report.transactionHash 
-      : `0x${report.transactionHash}`;
-    
-    // Use Sepolia Etherscan for all reports
-    console.log(`Building Sepolia explorer URL for: ${formattedHash}`);
-    return `https://sepolia.etherscan.io/tx/${formattedHash}`;
+  const addDebugInfo = (message: string) => {
+    console.log(message);
+    setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
   };
 
-  // Fetch audits from all supported chains
-  const fetchAllChainAudits = async () => {
-    setIsLoading(true);
+  // Test contract connection
+  const testContractConnection = async () => {
+    addDebugInfo('Testing contract connection...');
+    
     try {
-      const allAudits: AuditReport[] = [];
-      const BATCH_SIZE = 50;
-  
-      for (const [chainKey, chainData] of Object.entries(CHAIN_CONFIG)) {
+      const chainData = CHAIN_CONFIG.sepolia;
+      const contractAddress = CONTRACT_ADDRESSES.sepolia;
+      
+      addDebugInfo(`Contract address: ${contractAddress}`);
+      addDebugInfo(`Using RPC: ${chainData.rpcUrls[0]}`);
+      
+      // Try multiple RPC providers
+      const rpcUrls = [
+        'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+        'https://rpc.sepolia.org',
+        'https://eth-sepolia.public.blastapi.io'
+      ];
+      
+      let provider: ethers.JsonRpcProvider | null = null;
+      
+      for (const rpcUrl of rpcUrls) {
         try {
-          console.log(`Fetching from ${chainKey}...`);
+          addDebugInfo(`Trying RPC: ${rpcUrl}`);
+          const testProvider = new ethers.JsonRpcProvider(rpcUrl);
           
-          const provider = new ethers.JsonRpcProvider(chainData.rpcUrls[0]);
-  
-          const contract = new ethers.Contract(
-            CONTRACT_ADDRESSES[chainKey as ChainKey],
-            AUDIT_REGISTRY_ABI,
-            provider
-          );
-  
-          // Get total contracts for this chain
-          const totalContracts = await contract.getTotalContracts();
-          console.log(`Found ${totalContracts.toString()} contracts on ${chainKey}`);
-  
-          // Fetch in batches
-          let processed = 0;
-          while (processed < totalContracts) {
-            try {
-              const {
-                contractHashes,
-                stars,
-                summaries,
-                auditors,
-                timestamps
-              } = await contract.getAllAudits(processed, BATCH_SIZE);
-  
-              console.log(`Processing batch of ${contractHashes.length} audits`);
-              
-              for (let i = 0; i < contractHashes.length; i++) {
-                try {
-                  const filter = contract.filters.AuditRegistered(contractHashes[i]);
-                  const currentBlock = await provider.getBlockNumber();
-                  const MAX_BLOCK_RANGE = 10000; // About 1-2 days of blocks
-                  const startBlock = Math.max(0, currentBlock - MAX_BLOCK_RANGE);
-                  
-                  const events = await contract.queryFilter(filter, startBlock, currentBlock);
-                  const txHash = events[events.length - 1]?.transactionHash || '';
-                  
-                  allAudits.push({
-                    contractHash: contractHashes[i],
-                    transactionHash: txHash,
-                    stars: Number(stars[i]),
-                    summary: summaries[i],
-                    auditor: auditors[i],
-                    timestamp: Number(timestamps[i]),
-                    chain: chainKey as ChainKey
-                  });
-                  
-                  if (txHash) {
-                    console.log(`Found tx hash for ${contractHashes[i].slice(0, 8)}: ${txHash.slice(0, 10)}...`);
-                  } else {
-                    console.log(`No tx hash found for ${contractHashes[i].slice(0, 8)}`);
-                  }
-                } catch (eventError) {
-                  console.error(`Error fetching events for contract ${contractHashes[i].slice(0, 8)}:`, eventError);
-                  
-                  // Still add the audit even if we can't get the transaction hash
-                  allAudits.push({
-                    contractHash: contractHashes[i],
-                    transactionHash: '',
-                    stars: Number(stars[i]),
-                    summary: summaries[i],
-                    auditor: auditors[i],
-                    timestamp: Number(timestamps[i]),
-                    chain: chainKey as ChainKey
-                  });
-                }
-              }
-              
-              processed += contractHashes.length;
-              console.log(`Processed ${processed}/${totalContracts} on ${chainKey}`);
-  
-            } catch (batchError) {
-              console.error(`Error fetching batch at ${processed} from ${chainKey}:`, batchError);
-              break;
-            }
-          }
-  
-        } catch (chainError) {
-          console.error(`Error processing chain ${chainKey}:`, chainError);
+          // Test connection
+          const blockNumber = await testProvider.getBlockNumber();
+          addDebugInfo(`Connected to ${rpcUrl}, latest block: ${blockNumber}`);
+          
+          provider = testProvider;
+          break;
+        } catch (rpcError) {
+          addDebugInfo(`RPC ${rpcUrl} failed: ${(rpcError as Error).message}`);
         }
       }
-  
-      console.log(`Total audits collected: ${allAudits.length}`);
-      setReports(allAudits.sort((a, b) => b.timestamp - a.timestamp));
-  
+      
+      if (!provider) {
+        throw new Error('All RPC providers failed');
+      }
+      
+      // Test contract
+      const contract = new ethers.Contract(
+        contractAddress,
+        AUDIT_REGISTRY_ABI,
+        provider
+      );
+      
+      // Check if contract exists
+      const code = await provider.getCode(contractAddress);
+      if (code === '0x') {
+        throw new Error('Contract not deployed at this address');
+      }
+      
+      addDebugInfo('Contract exists, checking for data...');
+      
+      // Try to get total contracts
+      try {
+        const totalContracts = await contract.getTotalContracts();
+        addDebugInfo(`Total contracts in registry: ${totalContracts.toString()}`);
+        
+        if (totalContracts === 0n) {
+          addDebugInfo('No audits found in contract');
+          return { provider, contract, totalContracts: 0 };
+        }
+        
+        return { provider, contract, totalContracts: Number(totalContracts) };
+      } catch (contractError) {
+        addDebugInfo(`Contract call failed: ${(contractError as Error).message}`);
+        throw contractError;
+      }
+      
     } catch (error) {
-      console.error('Failed to fetch audits:', error);
+      addDebugInfo(`Connection test failed: ${(error as Error).message}`);
+      throw error;
+    }
+  };
+
+  // Fetch audits with better error handling
+  const fetchAllChainAudits = async () => {
+    setIsLoading(true);
+    setError(null);
+    setDebugInfo([]);
+    
+    try {
+      addDebugInfo('Starting audit fetch...');
+      
+      // Test connection first
+      const { provider, contract, totalContracts } = await testContractConnection();
+      
+      if (totalContracts === 0) {
+        addDebugInfo('No audits to fetch');
+        setReports([]);
+        return;
+      }
+      
+      const allAudits: AuditReport[] = [];
+      const BATCH_SIZE = 10; // Smaller batch size for testing
+      
+      let processed = 0;
+      while (processed < totalContracts) {
+        try {
+          addDebugInfo(`Fetching batch: ${processed} to ${Math.min(processed + BATCH_SIZE, totalContracts)}`);
+          
+          const {
+            contractHashes,
+            stars,
+            summaries,
+            auditors,
+            timestamps
+          } = await contract.getAllAudits(processed, BATCH_SIZE);
+          
+          addDebugInfo(`Received ${contractHashes.length} audits in batch`);
+          
+          for (let i = 0; i < contractHashes.length; i++) {
+            try {
+              allAudits.push({
+                contractHash: contractHashes[i],
+                transactionHash: '', // We'll skip tx hash for now to avoid complexity
+                stars: Number(stars[i]),
+                summary: summaries[i],
+                auditor: auditors[i],
+                timestamp: Number(timestamps[i]),
+                chain: 'sepolia'
+              });
+              
+            } catch (auditError) {
+              addDebugInfo(`Error processing audit ${i}: ${(auditError as Error).message}`);
+            }
+          }
+          
+          processed += contractHashes.length;
+          
+          // Break if we got less than requested (end of data)
+          if (contractHashes.length < BATCH_SIZE) {
+            break;
+          }
+          
+        } catch (batchError) {
+          addDebugInfo(`Batch error: ${(batchError as Error).message}`);
+          break;
+        }
+      }
+      
+      addDebugInfo(`Total audits collected: ${allAudits.length}`);
+      setReports(allAudits.sort((a, b) => b.timestamp - a.timestamp));
+      
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+      addDebugInfo(`Fetch failed: ${errorMessage}`);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -198,7 +248,6 @@ export default function ReportsPage() {
   };
 
   const exportReport = (report: AuditReport) => {
-    // Convert BigInt values and format data for export
     const formattedReport = {
       contractHash: report.contractHash,
       stars: Number(report.stars),
@@ -208,15 +257,9 @@ export default function ReportsPage() {
       chain: report.chain,
       chainName: CHAIN_CONFIG[report.chain].chainName,
       exportDate: new Date().toISOString(),
-      network: {
-        name: CHAIN_CONFIG[report.chain].chainName,
-        chainId: CHAIN_CONFIG[report.chain].chainId,
-        contractAddress: CONTRACT_ADDRESSES[report.chain as ChainKey],
-      },
       auditDate: new Date(Number(report.timestamp) * 1000).toLocaleString(),
     };
   
-    // Create and download the file
     try {
       const blob = new Blob([JSON.stringify(formattedReport, null, 2)], { 
         type: 'application/json' 
@@ -244,6 +287,37 @@ export default function ReportsPage() {
           </div>
           <h1 className="text-3xl font-mono font-bold mb-4 text-white">Audit Reports</h1>
           <p className="text-gray-400">View and analyze smart contract audits across multiple chains</p>
+          
+          {/* Debug Information */}
+          {debugInfo.length > 0 && (
+            <details className="mt-4 bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+              <summary className="cursor-pointer text-white font-mono text-sm">Debug Information ({debugInfo.length} messages)</summary>
+              <div className="mt-2 max-h-40 overflow-y-auto">
+                {debugInfo.map((info, index) => (
+                  <div key={index} className="text-xs text-gray-400 font-mono mb-1">
+                    {info}
+                  </div>
+                ))}
+              </div>
+            </details>
+          )}
+          
+          {/* Error Display */}
+          {error && (
+            <div className="mt-4 bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg flex items-start gap-2">
+              <Warning size={20} weight="bold" className="mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="font-semibold">Connection Error</div>
+                <div className="text-sm">{error}</div>
+                <button 
+                  onClick={fetchAllChainAudits}
+                  className="mt-2 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 rounded text-sm transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Search and Filters */}
@@ -337,9 +411,9 @@ export default function ReportsPage() {
                 </tr>
               </thead>
               <tbody>
-                {getFilteredReports().map((report) => (
+                {getFilteredReports().map((report, index) => (
                   <tr 
-                    key={`${report.contractHash}-${report.chain}`}
+                    key={`${report.contractHash}-${report.chain}-${index}`}
                     className="border-b border-gray-800/50 hover:bg-white/10 transition-colors duration-200"
                   >
                     <td className="py-4 px-6 font-mono">
@@ -411,11 +485,20 @@ export default function ReportsPage() {
             </div>
           )}
 
-          {!isLoading && getFilteredReports().length === 0 && (
+          {!isLoading && !error && getFilteredReports().length === 0 && reports.length === 0 && (
             <div className="py-12 text-center">
               <div className="inline-flex items-center px-4 py-2 bg-white/10 text-white rounded-lg">
                 <ListChecks className="mr-2" size={20} weight="bold" />
-                No audit reports found matching your criteria
+                No audit reports found. Try deploying and auditing a contract first.
+              </div>
+            </div>
+          )}
+
+          {!isLoading && !error && getFilteredReports().length === 0 && reports.length > 0 && (
+            <div className="py-12 text-center">
+              <div className="inline-flex items-center px-4 py-2 bg-white/10 text-white rounded-lg">
+                <ListChecks className="mr-2" size={20} weight="bold" />
+                No audit reports match your current filters
               </div>
             </div>
           )}
@@ -446,6 +529,19 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Contract Hash</label>
+                    <div className="font-mono bg-gray-800/70 px-3 py-2 rounded-lg border border-gray-700/70 flex items-center justify-between">
+                      <span>{selectedReport.contractHash}</span>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(selectedReport.contractHash)}
+                        className="text-white hover:text-gray-300 flex items-center gap-1 transition-colors duration-200"
+                      >
+                        <Copy size={16} weight="bold" />
+                      </button>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-sm text-gray-400 mb-1">Chain</label>
                     <div className="flex items-center gap-2 bg-gray-800/70 px-3 py-2 rounded-lg border border-gray-700/70">
@@ -514,17 +610,6 @@ export default function ReportsPage() {
                       <Download size={20} weight="bold" />
                       Export Report
                     </button>
-                    {selectedReport.transactionHash && selectedReport.transactionHash.length > 20 && !selectedReport.transactionHash.includes('-') && (
-                      <a
-                        href={getSepoliaExplorerLink(selectedReport)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
-                      >
-                        View on Explorer
-                        <ArrowSquareOut size={20} weight="bold" />
-                      </a>
-                    )}
                   </div>
                 </div>
               </div>
