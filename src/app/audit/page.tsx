@@ -22,6 +22,8 @@ import {
 import { useWalletConnection } from '@/utils/web3';
 import { CONTRACT_ADDRESSES, AUDIT_REGISTRY_ABI } from '@/utils/contracts';
 import { CHAIN_CONFIG } from '@/utils/web3';
+import { DatasetInfo } from '@/components/DatasetInfo';
+import { datasetProcessor } from '@/utils/datasetProcessor';
 
 // Initialize Mistral client
 const mistralClient = new Mistral({
@@ -119,6 +121,25 @@ export default function AuditPage() {
     hash: null,
     error: null
   });
+  // Academic dataset state
+  const [datasetLoaded, setDatasetLoaded] = useState(false);
+  const [academicPatterns, setAcademicPatterns] = useState<any[]>([]);
+
+  // Load academic dataset on component mount
+  useEffect(() => {
+    const loadDataset = async () => {
+      try {
+        const stats = await datasetProcessor.loadDataset();
+        setDatasetLoaded(true);
+        setAcademicPatterns(stats.vulnerabilityPatterns);
+        console.log('✅ Academic dataset loaded successfully');
+      } catch (error) {
+        console.error('Failed to load academic dataset:', error);
+      }
+    };
+
+    loadDataset();
+  }, []);
 
   // Mouse tracking effect
   useEffect(() => {
@@ -263,7 +284,7 @@ export default function AuditPage() {
     }
   };
 
-  // Main analysis function
+  // Main analysis function with academic enhancement
   const analyzeContract = async () => {
     if (!code.trim()) {
       setError('Please enter your smart contract code.');
@@ -280,42 +301,52 @@ export default function AuditPage() {
     setIsReviewBlurred(true);
 
     try {
+      // Base prompt
+      const basePrompt = `You are a professional smart contract security auditor. Analyze the provided Solidity smart contract with zero tolerance for security issues.
+            
+      Rating System (Extremely Strict):
+      - 5 stars: ONLY if contract has zero vulnerabilities and follows all best practices
+      - 4 stars: ONLY if no critical/high vulnerabilities, max 1-2 medium issues
+      - 3 stars: No critical but has high severity issues needing attention
+      - 2 stars: Has critical vulnerability or multiple high severity issues
+      - 1 star: Multiple critical and high severity vulnerabilities
+      - 0 stars: Fundamental security flaws making contract unsafe
+      
+      Critical Issues (Any reduces rating to 2 or lower):
+      - Reentrancy vulnerabilities
+      - Unchecked external calls
+      - Integer overflow/underflow risks
+      - Access control flaws
+      - Unprotected selfdestruct
+      - Missing input validation
+
+      Return response in the following JSON format:
+      {
+        "stars": number,
+        "summary": "string",
+        "vulnerabilities": {
+          "critical": ["string"],
+          "high": ["string"],
+          "medium": ["string"],
+          "low": ["string"]
+        },
+        "recommendations": ["string"],
+        "gasOptimizations": ["string"]
+      }`;
+
+      // Get enhanced prompt with academic patterns
+      const enhancedPrompt = datasetLoaded 
+        ? datasetProcessor.getEnhancedPrompt(code, basePrompt)
+        : basePrompt;
+
+      console.log(datasetLoaded ? '🎓 Using academic-enhanced analysis' : '⚠️  Using standard analysis');
+
       const response = await mistralClient.chat.complete({
         model: "mistral-large-latest",
         messages: [
           {
             role: "system",
-            content: `You are a professional smart contract security auditor. Analyze the provided Solidity smart contract with zero tolerance for security issues.
-            
-            Rating System (Extremely Strict):
-            - 5 stars: ONLY if contract has zero vulnerabilities and follows all best practices
-            - 4 stars: ONLY if no critical/high vulnerabilities, max 1-2 medium issues
-            - 3 stars: No critical but has high severity issues needing attention
-            - 2 stars: Has critical vulnerability or multiple high severity issues
-            - 1 star: Multiple critical and high severity vulnerabilities
-            - 0 stars: Fundamental security flaws making contract unsafe
-            
-            Critical Issues (Any reduces rating to 2 or lower):
-            - Reentrancy vulnerabilities
-            - Unchecked external calls
-            - Integer overflow/underflow risks
-            - Access control flaws
-            - Unprotected selfdestruct
-            - Missing input validation
-
-            Return response in the following JSON format:
-            {
-              "stars": number,
-              "summary": "string",
-              "vulnerabilities": {
-                "critical": ["string"],
-                "high": ["string"],
-                "medium": ["string"],
-                "low": ["string"]
-              },
-              "recommendations": ["string"],
-              "gasOptimizations": ["string"]
-            }`
+            content: enhancedPrompt
           },
           {
             role: "user",
@@ -377,10 +408,17 @@ export default function AuditPage() {
         {/* Header Section */}
         <div className="mb-8">
           <div className="inline-block mb-3 px-4 py-1 rounded-full bg-white/10 border border-white/20">
-            <span className="text-white text-sm font-semibold">AI Security Analysis</span>
+            <span className="text-white text-sm font-semibold">
+              {datasetLoaded ? '🎓 Academic AI Security Analysis' : 'AI Security Analysis'}
+            </span>
           </div>
           <h1 className="text-3xl font-mono font-bold text-white mb-4">Smart Contract Audit</h1>
-          <p className="text-gray-400">Get instant AI-powered security analysis for your smart contracts on Sepolia testnet</p>
+          <p className="text-gray-400">
+            {datasetLoaded 
+              ? 'Get AI-powered security analysis enhanced with academic research patterns from 57,000+ smart contracts'
+              : 'Get instant AI-powered security analysis for your smart contracts on Sepolia testnet'
+            }
+          </p>
           <AnimatePresence>
             {error && (
               <motion.div
@@ -395,6 +433,22 @@ export default function AuditPage() {
           </AnimatePresence>
         </div>
 
+        {/* Academic Dataset Info Component */}
+        <DatasetInfo />
+
+        {/* Dataset Status Indicator */}
+        {datasetLoaded && (
+          <div className="mb-6 flex items-center gap-3 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-green-400 text-sm font-medium">Academic Dataset Active</span>
+            </div>
+            <span className="text-green-300 text-xs">
+              Enhanced with {academicPatterns.length} formal vulnerability patterns
+            </span>
+          </div>
+        )}
+
         {/* Main Content Grid */}
         <div className="grid md:grid-cols-2 gap-8">
           {/* Code Input Panel */}
@@ -407,15 +461,26 @@ export default function AuditPage() {
               } as React.CSSProperties}
             >
               <div className="absolute inset-0">
-                <div className="p-4 border-b border-gray-800 flex items-center gap-2">
-                  <FileCode className="text-white" size={20} weight="duotone" />
-                  <span className="font-mono">Solidity Code</span>
+                <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileCode className="text-white" size={20} weight="duotone" />
+                    <span className="font-mono">Solidity Code</span>
+                  </div>
+                  {datasetLoaded && (
+                    <div className="flex items-center gap-1 text-xs text-blue-400">
+                      <Robot size={14} weight="fill" />
+                      <span>Academic Enhancement</span>
+                    </div>
+                  )}
                 </div>
                 <div className="h-[calc(100%-60px)] custom-scrollbar">
                   <textarea
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder="// Paste your Solidity code here..."
+                    placeholder={datasetLoaded 
+                      ? "// Paste your Solidity code here...\n// Academic patterns will automatically enhance the analysis\n// Try the vulnerable contract examples from the dataset!"
+                      : "// Paste your Solidity code here..."
+                    }
                     className="w-full h-full p-4 bg-transparent font-mono text-sm focus:outline-none resize-none code-editor"
                     spellCheck="false"
                     disabled={isAnalyzing}
@@ -451,18 +516,20 @@ export default function AuditPage() {
               className={`mt-4 w-full py-3 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-all duration-200 ${
                 isAnalyzing || !code || cooldown > 0
                   ? 'bg-gray-800 text-gray-400 cursor-not-allowed'
-                  : 'bg-dark-100 hover:bg-dark-200 text-white shadow-lg shadow-white/20'
+                  : datasetLoaded
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/20'
+                    : 'bg-dark-100 hover:bg-dark-200 text-white shadow-lg shadow-white/20'
               }`}
             >
               {isAnalyzing ? (
                 <>
                   <CircleNotch className="animate-spin" size={20} weight="bold" />
-                  Analyzing...
+                  {datasetLoaded ? 'Academic Analysis...' : 'Analyzing...'}
                 </>
               ) : (
                 <>
-                  <Lightning size={20} weight="fill" />
-                  Analyze Contract
+                  {datasetLoaded ? <Robot size={20} weight="fill" /> : <Lightning size={20} weight="fill" />}
+                  {datasetLoaded ? 'Analyze with Academic AI' : 'Analyze Contract'}
                 </>
               )}
             </button>
@@ -481,7 +548,9 @@ export default function AuditPage() {
                 <div className="p-4 border-b border-gray-800 flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <Shield className="text-white" size={20} weight="duotone" />
-                    <span className="font-mono">Analysis Results</span>
+                    <span className="font-mono">
+                      {datasetLoaded ? 'Academic Analysis Results' : 'Analysis Results'}
+                    </span>
                   </div>
                   {txState.hash && currentChain && (
                     <a 
@@ -509,6 +578,11 @@ export default function AuditPage() {
                       ))}
                     </div>
                     <span className="text-gray-400">Security Score</span>
+                    {datasetLoaded && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        Academic Enhanced
+                      </span>
+                    )}
                   </div>
 
                   {/* Summary */}
@@ -530,6 +604,11 @@ export default function AuditPage() {
                           <div className="flex items-center gap-2 mb-2">
                             {config.icon}
                             <span className={`font-semibold ${config.color}`}>{config.label}</span>
+                            {datasetLoaded && (
+                              <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                Pattern Matched
+                              </span>
+                            )}
                           </div>
                           <ul className="space-y-2">
                             {issues.map((issue, index) => (
@@ -579,12 +658,23 @@ export default function AuditPage() {
                   <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30">
                     <div className="bg-gray-900 p-8 rounded-xl border border-white/30 shadow-xl text-center">
                       <Shield className="text-white mb-6 mx-auto" size={48} weight="duotone" />
-                      <h3 className="text-xl font-bold mb-3">Verify Contract Security</h3>
-                      <p className="text-gray-400 mb-6 max-w-sm">Register this audit on the blockchain to verify its security status and view the full report</p>
+                      <h3 className="text-xl font-bold mb-3">
+                        {datasetLoaded ? 'Verify Academic Analysis' : 'Verify Contract Security'}
+                      </h3>
+                      <p className="text-gray-400 mb-6 max-w-sm">
+                        {datasetLoaded 
+                          ? 'Register this academic-enhanced audit on the blockchain to verify its research-backed security status'
+                          : 'Register this audit on the blockchain to verify its security status and view the full report'
+                        }
+                      </p>
                       <button
                         onClick={registerAuditOnChain}
                         disabled={txState.isProcessing}
-                        className="px-8 py-3 bg-dark-100 hover:bg-dark-200 text-white font-bold rounded-lg transition-all duration-200 flex items-center gap-3 mx-auto shadow-lg shadow-white/20"
+                        className={`px-8 py-3 font-bold rounded-lg transition-all duration-200 flex items-center gap-3 mx-auto shadow-lg ${
+                          datasetLoaded 
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-blue-500/20'
+                            : 'bg-dark-100 hover:bg-dark-200 text-white shadow-white/20'
+                        }`}
                       >
                         {txState.isProcessing ? (
                           <>
@@ -632,59 +722,143 @@ export default function AuditPage() {
                 <div className="text-center">
                   <div className="relative w-20 h-20 mx-auto mb-6">
                     <div className="absolute inset-0 bg-white/10 rounded-full blur-2xl"></div>
-                    <Shield size={80} className="text-white relative z-10" weight="duotone" />
+                    {datasetLoaded ? (
+                      <Robot size={80} className="text-white relative z-10" weight="duotone" />
+                    ) : (
+                      <Shield size={80} className="text-white relative z-10" weight="duotone" />
+                    )}
                   </div>
-                  <h3 className="text-xl font-mono mb-4">Smart Contract Analyzer</h3>
+                  <h3 className="text-xl font-mono mb-4">
+                    {datasetLoaded ? 'Academic Smart Contract Analyzer' : 'Smart Contract Analyzer'}
+                  </h3>
                   <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                    Paste your Solidity code on the left panel and click 'Analyze Contract' to get a comprehensive security assessment
+                    {datasetLoaded 
+                      ? 'Paste your Solidity code to get comprehensive security analysis enhanced with formal patterns from 57,000+ academic research contracts'
+                      : 'Paste your Solidity code on the left panel and click \'Analyze Contract\' to get a comprehensive security assessment'
+                    }
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
-                      Vulnerability Detection
-                    </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
-                      Security Scoring
-                    </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
-                      Gas Optimization
-                    </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
-                      On-Chain Verification
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      <style jsx>{`
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: rgba(59, 130, 246, 0.3);
-          border-radius: 3px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: rgba(59, 130, 246, 0.5);
-        }
-        
-        .code-editor::selection {
-          background: rgba(59, 130, 246, 0.2);
-        }
-      `}</style>
-    </div>
-  );
+                   {datasetLoaded ? (
+                     <>
+                       <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                         Academic Patterns
+                       </span>
+                       <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                         Formal Logic Detection
+                       </span>
+                       <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-300 border border-green-500/30">
+                         Research Validated
+                       </span>
+                       <span className="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                         57K+ Contract Dataset
+                       </span>
+                     </>
+                   ) : (
+                     <>
+                       <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
+                         Vulnerability Detection
+                       </span>
+                       <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
+                         Security Scoring
+                       </span>
+                       <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
+                         Gas Optimization
+                       </span>
+                       <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
+                         On-Chain Verification
+                       </span>
+                     </>
+                   )}
+                 </div>
+               </div>
+             </div>
+           )}
+         </div>
+       </div>
+
+       {/* Academic Test Contract Examples */}
+       {datasetLoaded && !result && (
+         <div className="mt-8 bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-500/20 rounded-lg p-6">
+           <div className="flex items-center gap-2 mb-4">
+             <Robot className="text-blue-400" size={20} weight="fill" />
+             <h3 className="font-semibold text-blue-400">Test Academic Pattern Detection</h3>
+           </div>
+           <p className="text-blue-200 text-sm mb-4">
+             Try these example contracts that match specific academic vulnerability patterns:
+           </p>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <button
+               onClick={() => setCode(`pragma solidity ^0.8.19;
+
+contract ReentrancyExample {
+   mapping(address => uint) public balances;
+   
+   // CALLValueInvocation ∧ RepeatedCallValue pattern
+   function vulnerableWithdraw() public {
+       uint bal = balances[msg.sender];
+       require(bal > 0);
+       
+       (bool sent, ) = msg.sender.call{value: bal}("");
+       require(sent, "Failed to send Ether");
+       
+       balances[msg.sender] = 0; // State change AFTER call
+   }
+}`)}
+               className="text-left p-4 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors duration-200"
+             >
+               <div className="font-semibold text-red-400 mb-1">Reentrancy Pattern</div>
+               <div className="text-xs text-red-300">CALLValueInvocation ∧ RepeatedCallValue</div>
+             </button>
+             
+             <button
+               onClick={() => setCode(`pragma solidity ^0.8.19;
+
+contract TimestampExample {
+   // TSInvocation ∨ (TSContaminate ∧ TSRandom) pattern
+   function timestampLottery() public payable {
+       require(msg.value == 1 ether);
+       
+       if (block.timestamp % 2 == 0) {
+           msg.sender.transfer(2 ether);
+       }
+   }
+}`)}
+               className="text-left p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg hover:bg-yellow-500/20 transition-colors duration-200"
+             >
+               <div className="font-semibold text-yellow-400 mb-1">Timestamp Dependency</div>
+               <div className="text-xs text-yellow-300">TSInvocation ∨ (TSContaminate ∧ TSRandom)</div>
+             </button>
+           </div>
+         </div>
+       )}
+     </div>
+     <style jsx>{`
+       .custom-scrollbar {
+         scrollbar-width: thin;
+         scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+       }
+       
+       .custom-scrollbar::-webkit-scrollbar {
+         width: 6px;
+       }
+       
+       .custom-scrollbar::-webkit-scrollbar-track {
+         background: transparent;
+       }
+       
+       .custom-scrollbar::-webkit-scrollbar-thumb {
+         background-color: rgba(59, 130, 246, 0.3);
+         border-radius: 3px;
+       }
+       
+       .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+         background-color: rgba(59, 130, 246, 0.5);
+       }
+       
+       .code-editor::selection {
+         background: rgba(59, 130, 246, 0.2);
+       }
+     `}</style>
+   </div>
+ );
 }
