@@ -17,11 +17,14 @@ import {
   CircleNotch,
   ArrowSquareOut,
   Lightning,
-  Shield
+  Shield,
+  MagnifyingGlass,
+  Database
 } from 'phosphor-react';
 import { useWalletConnection } from '@/utils/web3';
 import { CONTRACT_ADDRESSES, AUDIT_REGISTRY_ABI } from '@/utils/contracts';
 import { CHAIN_CONFIG } from '@/utils/web3';
+import { enhancedContractRAG as contractRAG } from '@/utils/enhanced-rag-engine';
 
 // Initialize Mistral client
 const mistralClient = new Mistral({
@@ -54,6 +57,11 @@ interface AuditResult {
   };
   recommendations: string[];
   gasOptimizations: string[];
+  ragAnalysis?: {
+    detectedPatterns: number;
+    confidenceScore: number;
+    knowledgeBaseMatches: string[];
+  };
 }
 
 interface SeverityConfig {
@@ -119,6 +127,8 @@ export default function AuditPage() {
     hash: null,
     error: null
   });
+  const [ragPreAnalysis, setRagPreAnalysis] = useState<any>(null);
+  const [showRAGInsights, setShowRAGInsights] = useState(false);
 
   // Mouse tracking effect
   useEffect(() => {
@@ -139,6 +149,16 @@ export default function AuditPage() {
     }
     return () => clearInterval(interval);
   }, [cooldown]);
+
+  // Enhanced RAG Pre-analysis when code changes
+  useEffect(() => {
+    if (code.trim() && isSolidityCode(code)) {
+      const analysis = contractRAG.analyzeContractWithConfidence(code);
+      setRagPreAnalysis(analysis);
+    } else {
+      setRagPreAnalysis(null);
+    }
+  }, [code]);
 
   // Validation functions
   const isSolidityCode = (code: string): boolean => {
@@ -263,7 +283,7 @@ export default function AuditPage() {
     }
   };
 
-  // Main analysis function
+  // Enhanced analysis function with RAG
   const analyzeContract = async () => {
     if (!code.trim()) {
       setError('Please enter your smart contract code.');
@@ -280,46 +300,20 @@ export default function AuditPage() {
     setIsReviewBlurred(true);
 
     try {
+      // Generate enhanced prompt with RAG context
+      const enhancedPrompt = contractRAG.generateEnhancedPromptWithDataset(code);
+      
       const response = await mistralClient.chat.complete({
-        model: "mistral-large-latest",
+        // line 306 – just swap to the smaller pool
+        model: "mistral-medium-latest",
         messages: [
           {
             role: "system",
-            content: `You are a professional smart contract security auditor. Analyze the provided Solidity smart contract with zero tolerance for security issues.
-            
-            Rating System (Extremely Strict):
-            - 5 stars: ONLY if contract has zero vulnerabilities and follows all best practices
-            - 4 stars: ONLY if no critical/high vulnerabilities, max 1-2 medium issues
-            - 3 stars: No critical but has high severity issues needing attention
-            - 2 stars: Has critical vulnerability or multiple high severity issues
-            - 1 star: Multiple critical and high severity vulnerabilities
-            - 0 stars: Fundamental security flaws making contract unsafe
-            
-            Critical Issues (Any reduces rating to 2 or lower):
-            - Reentrancy vulnerabilities
-            - Unchecked external calls
-            - Integer overflow/underflow risks
-            - Access control flaws
-            - Unprotected selfdestruct
-            - Missing input validation
-
-            Return response in the following JSON format:
-            {
-              "stars": number,
-              "summary": "string",
-              "vulnerabilities": {
-                "critical": ["string"],
-                "high": ["string"],
-                "medium": ["string"],
-                "low": ["string"]
-              },
-              "recommendations": ["string"],
-              "gasOptimizations": ["string"]
-            }`
+            content: "You are a professional smart contract security auditor with access to a comprehensive vulnerability database. Provide detailed, accurate security analysis."
           },
           {
             role: "user",
-            content: code
+            content: enhancedPrompt
           }
         ],
         responseFormat: { type: "json_object" },
@@ -336,18 +330,29 @@ export default function AuditPage() {
       // Validate response against schema
       const validatedResponse = VulnerabilitySchema.parse(parsedResponse);
 
+      // Add RAG analysis metadata
+      const ragAnalysis = contractRAG.analyzeContractWithConfidence(code);
+      const enhancedResult: AuditResult = {
+        ...validatedResponse,
+        ragAnalysis: {
+          detectedPatterns: ragAnalysis.datasetMatches || 0,
+          confidenceScore: ragAnalysis.confidence || 0,
+          knowledgeBaseMatches: contractRAG.getContextualRecommendations(code)
+        }
+      };
+
       // Enforce strict rating based on vulnerabilities
-      if (validatedResponse.vulnerabilities.critical.length > 0) {
-        validatedResponse.stars = Math.min(validatedResponse.stars, 2);
+      if (enhancedResult.vulnerabilities.critical.length > 0) {
+        enhancedResult.stars = Math.min(enhancedResult.stars, 2);
       }
-      if (validatedResponse.vulnerabilities.high.length > 0) {
-        validatedResponse.stars = Math.min(validatedResponse.stars, 3);
+      if (enhancedResult.vulnerabilities.high.length > 0) {
+        enhancedResult.stars = Math.min(enhancedResult.stars, 3);
       }
-      if (validatedResponse.vulnerabilities.critical.length > 2) {
-        validatedResponse.stars = 0;
+      if (enhancedResult.vulnerabilities.critical.length > 2) {
+        enhancedResult.stars = 0;
       }
 
-      setResult(validatedResponse);
+      setResult(enhancedResult);
       setShowResult(true);
       setCooldown(COOLDOWN_TIME);
       
@@ -377,10 +382,80 @@ export default function AuditPage() {
         {/* Header Section */}
         <div className="mb-8">
           <div className="inline-block mb-3 px-4 py-1 rounded-full bg-white/10 border border-white/20">
-            <span className="text-white text-sm font-semibold">AI Security Analysis</span>
+            <span className="text-white text-sm font-semibold flex items-center gap-2">
+              <Database size={16} weight="bold" />
+              AI Security Analysis with Knowledge Base
+            </span>
           </div>
-          <h1 className="text-3xl font-mono font-bold text-white mb-4">Smart Contract Audit</h1>
-          <p className="text-gray-400">Get instant AI-powered security analysis for your smart contracts on Sepolia testnet</p>
+          <h1 className="text-3xl font-mono font-bold text-white mb-4">
+            Enhanced Smart Contract Audit
+          </h1>
+          <p className="text-gray-400">
+            Advanced AI-powered security analysis using our curated vulnerability knowledge base from 40,000+ audited contracts
+          </p>
+          
+          {/* RAG Pre-analysis Insights */}
+          {/* Enhanced RAG Pre-analysis Insights */}
+          {ragPreAnalysis && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 bg-blue-500/10 border border-blue-500/20 rounded-lg p-4"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <MagnifyingGlass className="text-blue-400" size={20} weight="bold" />
+                  <span className="text-blue-400 font-semibold">Knowledge Base Scan</span>
+                </div>
+                <button
+                  onClick={() => setShowRAGInsights(!showRAGInsights)}
+                  className="text-blue-400 hover:text-blue-300 text-sm"
+                >
+                  {showRAGInsights ? 'Hide' : 'Show'} Details
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">
+                    {Object.values(ragPreAnalysis.vulnerabilities || {}).flat().length}
+                  </div>
+                  <div className="text-blue-400">Issues Detected</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">
+                    {ragPreAnalysis.knowledgeBaseSize || 13}
+                  </div>
+                  <div className="text-blue-400">KB Patterns</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">
+                    {ragPreAnalysis.datasetEnhanced ? '✓' : '○'}
+                  </div>
+                  <div className="text-blue-400">Enhanced</div>
+                </div>
+              </div>
+
+              {showRAGInsights && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-4 pt-4 border-t border-blue-500/20"
+                >
+                  <div className="text-sm">
+                    <div className="mb-2 font-semibold text-blue-400">Pattern Analysis:</div>
+                    <div className="text-blue-300">{ragPreAnalysis.detailedAnalysis}</div>
+                    {ragPreAnalysis.datasetEnhanced && (
+                      <div className="mt-2 text-xs bg-green-500/10 border border-green-500/20 rounded px-2 py-1 text-green-400">
+                        ✅ Enhanced with {ragPreAnalysis.knowledgeBaseSize} dataset patterns
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
           <AnimatePresence>
             {error && (
               <motion.div
@@ -410,12 +485,31 @@ export default function AuditPage() {
                 <div className="p-4 border-b border-gray-800 flex items-center gap-2">
                   <FileCode className="text-white" size={20} weight="duotone" />
                   <span className="font-mono">Solidity Code</span>
+                  {ragPreAnalysis && (
+                    <div className="ml-auto flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-xs text-green-400">KB Active</span>
+                    </div>
+                  )}
                 </div>
                 <div className="h-[calc(100%-60px)] custom-scrollbar">
                   <textarea
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder="// Paste your Solidity code here..."
+                    placeholder="// Paste your Solidity code here...
+// Example vulnerable contract:
+pragma solidity ^0.8.19;
+
+contract TestContract {
+    mapping(address => uint256) public balances;
+    
+    function withdraw() public {
+        uint256 amount = balances[msg.sender];
+        // Vulnerable: external call before state change
+        (bool success,) = msg.sender.call{value: amount}('');
+        balances[msg.sender] = 0;
+    }
+}"
                     className="w-full h-full p-4 bg-transparent font-mono text-sm focus:outline-none resize-none code-editor"
                     spellCheck="false"
                     disabled={isAnalyzing}
@@ -457,12 +551,12 @@ export default function AuditPage() {
               {isAnalyzing ? (
                 <>
                   <CircleNotch className="animate-spin" size={20} weight="bold" />
-                  Analyzing...
+                  Running Enhanced Analysis...
                 </>
               ) : (
                 <>
                   <Lightning size={20} weight="fill" />
-                  Analyze Contract
+                  Analyze with Knowledge Base
                 </>
               )}
             </button>
@@ -481,7 +575,13 @@ export default function AuditPage() {
                 <div className="p-4 border-b border-gray-800 flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <Shield className="text-white" size={20} weight="duotone" />
-                    <span className="font-mono">Analysis Results</span>
+                    <span className="font-mono">Enhanced Analysis Results</span>
+                    {result.ragAnalysis && (
+                      <div className="ml-2 flex items-center gap-1">
+                        <Database className="text-green-400" size={16} weight="bold" />
+                        <span className="text-xs text-green-400">KB Enhanced</span>
+                      </div>
+                    )}
                   </div>
                   {txState.hash && currentChain && (
                     <a 
@@ -496,7 +596,7 @@ export default function AuditPage() {
                 </div>
 
                 <div className={`h-[calc(100%-60px)] custom-scrollbar overflow-auto p-6 transition-all duration-300 ${isReviewBlurred ? 'blur-md select-none' : ''}`}>
-                  {/* Rating */}
+                  {/* Enhanced Rating with RAG Confidence */}
                   <div className="flex items-center gap-4 mb-6">
                     <div className="flex gap-1">
                       {[...Array(5)].map((_, i) => (
@@ -508,8 +608,34 @@ export default function AuditPage() {
                         />
                       ))}
                     </div>
-                    <span className="text-gray-400">Security Score</span>
+                    <div className="flex flex-col">
+                      <span className="text-gray-400">Security Score</span>
+                      {result.ragAnalysis && (
+                        <span className="text-xs text-green-400">
+                          KB Confidence: {result.ragAnalysis.confidenceScore.toFixed(1)}/5
+                        </span>
+                      )}
+                    </div>
                   </div>
+
+                  {/* RAG Analysis Summary */}
+                  {result.ragAnalysis && (
+                    <div className="mb-6">
+                      <h3 className="font-mono text-sm text-white mb-2">KNOWLEDGE BASE ANALYSIS</h3>
+                      <div className="bg-blue-500/10 border border-blue-500/20 px-4 py-3 rounded-lg">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-blue-400">Pattern Matches:</span>
+                            <span className="text-white ml-2">{result.ragAnalysis.detectedPatterns}</span>
+                          </div>
+                          <div>
+                            <span className="text-blue-400">KB Recommendations:</span>
+                            <span className="text-white ml-2">{result.ragAnalysis.knowledgeBaseMatches.length}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Summary */}
                   <div className="mb-6">
@@ -530,6 +656,9 @@ export default function AuditPage() {
                           <div className="flex items-center gap-2 mb-2">
                             {config.icon}
                             <span className={`font-semibold ${config.color}`}>{config.label}</span>
+                            <span className="text-xs bg-black/20 px-2 py-0.5 rounded-full text-gray-400">
+                              {issues.length} issue{issues.length > 1 ? 's' : ''}
+                            </span>
                           </div>
                           <ul className="space-y-2">
                             {issues.map((issue, index) => (
@@ -541,9 +670,16 @@ export default function AuditPage() {
                         </div>
                       );
                     })}
+                    
+                    {Object.values(result.vulnerabilities).every(arr => arr.length === 0) && (
+                      <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 flex items-center gap-2">
+                        <CheckCircle className="text-green-400" size={20} weight="fill" />
+                        <span className="text-green-400">No vulnerabilities detected by knowledge base analysis!</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Recommendations */}
+                  {/* Enhanced Recommendations */}
                   <div className="mb-6">
                     <h3 className="font-mono text-sm text-white mb-2">RECOMMENDATIONS</h3>
                     <div className="bg-white/5 border border-white/20 rounded-lg p-4">
@@ -555,6 +691,23 @@ export default function AuditPage() {
                           </li>
                         ))}
                       </ul>
+                      
+                      {/* Knowledge Base Specific Recommendations */}
+                      {result.ragAnalysis && result.ragAnalysis.knowledgeBaseMatches.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-white/10">
+                          <div className="text-xs text-blue-400 mb-2 flex items-center gap-1">
+                            <Database size={12} weight="bold" />
+                            KNOWLEDGE BASE RECOMMENDATIONS
+                          </div>
+                          <ul className="space-y-1">
+                            {result.ragAnalysis.knowledgeBaseMatches.slice(0, 3).map((rec, index) => (
+                              <li key={index} className="text-xs text-blue-300">
+                                • {rec}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -579,8 +732,22 @@ export default function AuditPage() {
                   <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30">
                     <div className="bg-gray-900 p-8 rounded-xl border border-white/30 shadow-xl text-center">
                       <Shield className="text-white mb-6 mx-auto" size={48} weight="duotone" />
-                      <h3 className="text-xl font-bold mb-3">Verify Contract Security</h3>
-                      <p className="text-gray-400 mb-6 max-w-sm">Register this audit on the blockchain to verify its security status and view the full report</p>
+                      <h3 className="text-xl font-bold mb-3">Verify Enhanced Security Analysis</h3>
+                      <p className="text-gray-400 mb-6 max-w-sm">
+                        Register this knowledge-base enhanced audit on the blockchain to verify its security status
+                      </p>
+                      
+                      {/* Analysis Preview */}
+                      {result.ragAnalysis && (
+                        <div className="mb-6 bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                          <div className="text-xs text-blue-400 mb-2">Analysis Overview</div>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="text-white">{result.ragAnalysis.detectedPatterns} Patterns</div>
+                            <div className="text-white">{result.ragAnalysis.confidenceScore.toFixed(1)}/5 Confidence</div>
+                          </div>
+                        </div>
+                      )}
+                      
                       <button
                         onClick={registerAuditOnChain}
                         disabled={txState.isProcessing}
@@ -589,12 +756,12 @@ export default function AuditPage() {
                         {txState.isProcessing ? (
                           <>
                             <CircleNotch className="animate-spin" size={20} weight="bold" />
-                            Registering Audit...
+                            Registering Enhanced Audit...
                           </>
                         ) : (
                           <>
                             <Lock size={20} weight="fill" />
-                            Register Audit On-Chain
+                            Register Enhanced Audit On-Chain
                           </>
                         )}
                       </button>
@@ -632,21 +799,24 @@ export default function AuditPage() {
                 <div className="text-center">
                   <div className="relative w-20 h-20 mx-auto mb-6">
                     <div className="absolute inset-0 bg-white/10 rounded-full blur-2xl"></div>
-                    <Shield size={80} className="text-white relative z-10" weight="duotone" />
+                    <div className="relative z-10 flex items-center justify-center">
+                      <Shield size={40} className="text-white" weight="duotone" />
+                      <Database size={40} className="text-blue-400 -ml-4 -mt-4" weight="bold" />
+                    </div>
                   </div>
-                  <h3 className="text-xl font-mono mb-4">Smart Contract Analyzer</h3>
+                  <h3 className="text-xl font-mono mb-4">Enhanced Smart Contract Analyzer</h3>
                   <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                    Paste your Solidity code on the left panel and click 'Analyze Contract' to get a comprehensive security assessment
+                    Paste your Solidity code to get AI-powered analysis enhanced with our knowledge base of 40,000+ audited contracts
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
                     <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
-                      Vulnerability Detection
+                      Pattern Recognition
+                    </span>
+                    <span className="text-xs px-2 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      Knowledge Base Enhanced
                     </span>
                     <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
-                      Security Scoring
-                    </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
-                      Gas Optimization
+                      Real-time Analysis
                     </span>
                     <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white border border-white/20">
                       On-Chain Verification
@@ -658,6 +828,7 @@ export default function AuditPage() {
           </div>
         </div>
       </div>
+      
       <style jsx>{`
         .custom-scrollbar {
           scrollbar-width: thin;
