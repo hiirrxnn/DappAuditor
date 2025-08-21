@@ -4,231 +4,263 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mistral } from '@mistralai/mistralai';
 import {
-  FileText,
-  Copy,
-  Check,
-  Function as FunctionIcon,
-  Database,
-  Bell,
-  Robot,
-  CircleNotch,
-  DownloadSimple,
-  Lightning,
-  Article,
-  BookOpen
+ FileText,
+ Copy,
+ Check,
+ Function as FunctionIcon,
+ Database,
+ Bell,
+ Robot,
+ CircleNotch,
+ DownloadSimple,
+ Lightning,
+ Article,
+ BookOpen,
+ ShieldCheck,
+ Archive
 } from 'phosphor-react';
 
 const mistralClient = new Mistral({
-  apiKey: process.env.NEXT_PUBLIC_MISTRAL_API_KEY!
+ apiKey: process.env.NEXT_PUBLIC_MISTRAL_API_KEY!
 });
 
+// --- Enhanced interfaces for more detail ---
 interface Parameter {
-  name: string;
-  type: string;
-  description?: string;
-  indexed?: boolean;
+ name: string;
+ type: string;
+ description?: string;
+ indexed?: boolean;
 }
 
 interface Function {
   name: string;
   description: string;
   params: Parameter[];
+  returns: Parameter[];
   visibility: string;
+  mutability: string;
+  modifiers: string[];
+  reverts: string[];
 }
 
 interface Event {
-  name: string;
-  description: string;
-  params: Parameter[];
+ name: string;
+ description: string;
+ params: Parameter[];
 }
 
 interface Variable {
-  name: string;
-  type: string;
-  visibility: string;
-  description: string;
+ name: string;
+ type: string;
+ visibility: string;
+ description: string;
 }
 
 interface Documentation {
-  name: string;
-  description: string;
-  version: string;
-  license: string;
-  functions?: Function[];
-  events?: Event[];
-  variables?: Variable[];
+ name: string;
+ description: string;
+ version: string;
+ license: string;
+ architecture: string;
+ securityConsiderations: string[];
+ functions?: Function[];
+ events?: Event[];
+ variables?: Variable[];
 }
 
 const ContractDocsGenerator = () => {
-  const [contractCode, setContractCode] = useState<string>('');
-  const [documentation, setDocumentation] = useState<Documentation | null>(null);
-  const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [copySuccess, setCopySuccess] = useState<boolean>(false);
-  const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
+ const [contractCode, setContractCode] = useState<string>('');
+ const [documentation, setDocumentation] = useState<Documentation | null>(null);
+ const [isGenerating, setIsGenerating] = useState<boolean>(false);
+ const [error, setError] = useState<string | null>(null);
+ const [copySuccess, setCopySuccess] = useState<boolean>(false);
+ const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
 
-  const generateDocs = async () => {
-    if (!contractCode.trim()) return;
-    setIsGenerating(true);
-    setError(null);
+ const generateDocs = async () => {
+  if (!contractCode.trim()) return;
+  setIsGenerating(true);
+  setError(null);
 
-    try {
-      const prompt = `You are an expert Solidity smart contract analyzer. Analyze this smart contract and provide a structured documentation object.
-      The response should be ONLY a valid JSON object with the following structure:
-      {
-        "name": "contract name",
-        "description": "brief description of what the contract does",
-        "version": "solidity version",
-        "license": "license type",
-        "functions": [
-          {
-            "name": "function name",
-            "description": "what the function does",
-            "params": [
-              {
-                "name": "parameter name",
-                "type": "parameter type",
-                "description": "parameter description"
-              }
-            ],
-            "visibility": "public/private/internal/external"
-          }
-        ],
-        "events": [
-          {
-            "name": "event name",
-            "description": "what the event represents",
-            "params": [
-              {
-                "name": "parameter name",
-                "type": "parameter type",
-                "indexed": boolean
-              }
-            ]
-          }
-        ],
-        "variables": [
-          {
-            "name": "variable name",
-            "type": "variable type",
-            "visibility": "public/private/internal",
-            "description": "what the variable represents"
-          }
-        ]
-      }
+  try {
+   const prompt = `You are a senior blockchain developer and technical writer, specializing in creating high-quality documentation for Solidity smart contracts. Your task is to analyze the provided contract and generate a comprehensive documentation object in JSON format.
 
-      Contract code to analyze:
-      ${contractCode}
+        **JSON Schema:**
+        Your entire response MUST be a single, valid JSON object matching this structure:
+        {
+          "name": "string (The main contract name)",
+          "description": "string (A detailed paragraph explaining the contract's purpose and functionality)",
+          "version": "string (The Solidity pragma version)",
+          "license": "string (The SPDX license identifier)",
+          "architecture": "string (A high-level overview of the contract's design, inheritance, and key patterns used)",
+          "securityConsiderations": ["string (A list of specific security measures implemented in the contract, e.g., 'Re-entrancy guard in the withdraw function.')"],
+          "functions": [
+            {
+              "name": "string",
+              "description": "string (Detailed explanation of what the function does)",
+              "params": [{"name": "string", "type": "string", "description": "string"}],
+              "returns": [{"name": "string (optional)", "type": "string", "description": "string"}],
+              "visibility": "string (public, private, internal, external)",
+              "mutability": "string (view, pure, payable, non-payable)",
+              "modifiers": ["string (List of modifiers, e.g., 'onlyOwner')"],
+              "reverts": ["string (List of conditions that will cause a revert, e.g., 'If the caller is not the owner.')"]
+            }
+          ],
+          "events": [
+            {
+              "name": "string",
+              "description": "string (What this event signifies)",
+              "params": [{"name": "string", "type": "string", "indexed": "boolean"}]
+            }
+          ],
+          "variables": [
+            {
+              "name": "string",
+              "type": "string",
+              "visibility": "string",
+              "description": "string (The purpose of this state variable)"
+            }
+          ]
+        }
 
-      Important:
-      1. Return ONLY the JSON object, no additional text or backticks
-      2. Include all public and external functions
-      3. Document all events
-      4. Include all public state variables
-      5. Keep descriptions concise but informative
-      6. Ensure the JSON is valid and properly formatted
+        **Instructions:**
+        1.  **Thoroughness is Key:** Do not skip any public/external functions, events, or public state variables.
+        2.  **Detailed Descriptions:** Provide clear, developer-focused explanations. For functions, explain their purpose and side effects.
+        3.  **Analyze Revert Conditions:** Carefully examine 'require' and 'assert' statements to populate the 'reverts' array for each function.
+        4.  **Identify Return Values:** Document what each function returns in the 'returns' array. If a function returns nothing, provide an empty array.
+        5.  **Strict JSON Output:** Your response must be ONLY the JSON object. Do not include any introductory text, explanations, or markdown formatting like \`\`\`json.
+
+        **Contract to Analyze:**
+        \`\`\`solidity
+        ${contractCode}
+        \`\`\`
       `;
 
-      const response = await mistralClient.chat.complete({
-        model: "mistral-large-latest",
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.1,
-        maxTokens: 4096,
-      });
+   const response = await mistralClient.chat.complete({
+    model: "mistral-large-latest",
+    messages: [
+     {
+      role: "user",
+      content: prompt,
+     },
+    ],
+    responseFormat: { type: "json_object" },
+    temperature: 0.1,
+    maxTokens: 4096,
+   });
 
-      let jsonString = response.choices?.[0]?.message?.content || '';
+   let jsonString = response.choices?.[0]?.message?.content || '';
 
-      if (typeof jsonString === 'string') {
-        jsonString = jsonString.trim();
-      }
-        if (typeof jsonString === 'string' && jsonString.startsWith('```json')) {
-        jsonString = jsonString.substring(7).trimStart();
-      }
-        if (typeof jsonString === 'string' && jsonString.endsWith('```')) {
-        jsonString = jsonString.slice(0, -3).trimEnd();
-      }
+   if (typeof jsonString === 'string') {
+    jsonString = jsonString.trim();
+   }
+   
+   if (typeof jsonString === 'string' && jsonString.startsWith('```json')) {
+    jsonString = jsonString.substring(7).trimStart();
+   }
+   if (typeof jsonString === 'string' && jsonString.endsWith('```')) {
+    jsonString = jsonString.slice(0, -3).trimEnd();
+   }
 
-      try {
-        const parsedDocs = JSON.parse(typeof jsonString === 'string' ? jsonString : '') as Documentation;
-        setDocumentation(parsedDocs);
-      } catch (parseError) {
-        console.error('Failed to parse Mistral response:', parseError, jsonString);
-        setError('Failed to parse contract documentation. Ensure the smart contract is valid. Please try again.');
-      }
-    } catch (err) {
-      console.error('Generation failed:', err);
-      setError('Failed to generate documentation. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+   try {
+    const parsedDocs = JSON.parse(typeof jsonString === 'string' ? jsonString : '') as Documentation;
+    setDocumentation(parsedDocs);
+   } catch (parseError) {
+    console.error('Failed to parse Mistral response:', parseError, jsonString);
+    setError('Failed to parse contract documentation. Ensure the smart contract is valid. Please try again.');
+   }
+  } catch (err) {
+   console.error('Generation failed:', err);
+   setError('Failed to generate documentation. Please try again.');
+  } finally {
+   setIsGenerating(false);
+  }
+ };
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
+ const copyToClipboard = async (text: string) => {
+  try {
+   await navigator.clipboard.writeText(text);
+   setCopySuccess(true);
+   setTimeout(() => setCopySuccess(false), 2000);
+  } catch (err) {
+   console.error('Failed to copy:', err);
+  }
+ };
 
-  const downloadDocs = () => {
-    if (!documentation) return;
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 2000);
+ const downloadDocs = () => {
+  if (!documentation) return;
+  setDownloadSuccess(true);
+  setTimeout(() => setDownloadSuccess(false), 2000);
 
-    // Generate markdown content
-    const markdownContent = `# ${documentation.name}
+  const markdownContent = `# ${documentation.name} Documentation
 
+*Version: ${documentation.version} | License: ${documentation.license}*
+
+## Description
 ${documentation.description}
 
-**Version:** ${documentation.version}
-**License:** ${documentation.license}
+## Architecture
+${documentation.architecture}
 
-## Functions
+## Security Considerations
+${documentation.securityConsiderations.map(note => `* ${note}`).join('\n')}
 
-${documentation.functions?.map(func => `### ${func.name}
-* **Visibility:** ${func.visibility}
-* **Description:** ${func.description}
-${func.params.length ? `* **Parameters:**
-${func.params.map(param => `  * \`${param.name}\` (${param.type}) - ${param.description}`).join('\n')}` : ''}`).join('\n\n')}
-
-## Events
-
-${documentation.events?.map(event => `### ${event.name}
-* **Description:** ${event.description}
-${event.params.length ? `* **Parameters:**
-${event.params.map(param => `  * \`${param.name}\` (${param.type})${param.indexed ? ' - indexed' : ''}`).join('\n')}` : ''}`).join('\n\n')}
+---
 
 ## State Variables
-
-${documentation.variables?.map(variable => `### ${variable.name}
-* **Type:** ${variable.type}
+${documentation.variables?.map(variable => `
+### \`${variable.name}\`
+* **Type:** \`${variable.type}\`
 * **Visibility:** ${variable.visibility}
-* **Description:** ${variable.description}`).join('\n\n')}`;
+* **Description:** ${variable.description}`).join('\n')}
 
-    // Create blob and download
-    const blob = new Blob([markdownContent], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${documentation.name.toLowerCase()}-documentation.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+---
 
-  useEffect(() => {
-    document.documentElement.classList.add('dark')
-  }, [])
+## Functions
+${documentation.functions?.map(func => `
+### \`${func.name}\`
+* **Visibility:** ${func.visibility}
+* **Mutability:** ${func.mutability}
+* **Modifiers:** ${func.modifiers.length ? func.modifiers.map(m => `\`${m}\``).join(', ') : 'None'}
 
+**Description:**
+${func.description}
+
+**Parameters:**
+${func.params.length ? func.params.map(param => `* \`${param.name}\` (\`${param.type}\`): ${param.description}`).join('\n') : '* None'}
+
+**Returns:**
+${func.returns.length ? func.returns.map(ret => `* \`${ret.name || ''}\` (\`${ret.type}\`): ${ret.description}`).join('\n') : '* None'}
+
+**Reverts If:**
+${func.reverts.length ? func.reverts.map(revert => `* ${revert}`).join('\n') : '* No specific revert conditions found.'}
+`).join('\n')}
+
+---
+
+## Events
+${documentation.events?.map(event => `
+### \`${event.name}\`
+**Description:**
+${event.description}
+
+**Parameters:**
+${event.params.length ? event.params.map(param => `* \`${param.name}\` (\`${param.type}\`)${param.indexed ? ' - *indexed*' : ''}`).join('\n') : '* None'}`).join('\n')}
+`;
+
+  const blob = new Blob([markdownContent], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${documentation.name.toLowerCase().replace(/\s/g, '-')}-documentation.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+ };
+
+ useEffect(() => {
+  document.documentElement.classList.add('dark')
+ }, [])
   return (
     <div className="min-h-screen py-12 bg-zinc-900 text-white">
       <div className="max-w-6xl mx-auto px-4">

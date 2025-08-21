@@ -1,194 +1,204 @@
-// TestCaseGenerator.tsx
-"use client"
+'use client';
 
 import React, { JSX, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mistral } from '@mistralai/mistralai';
 import {
-  FileCode,
-  Robot,
-  CircleNotch,
-  Copy,
-  Check,
-  TestTube,
-  Code,
-  Lightning
+  FileCode,
+  Robot,
+  CircleNotch,
+  Copy,
+  Check,
+  TestTube,
+  Code,
+  Lightning
 } from 'phosphor-react';
 
 const mistralClient = new Mistral({
-  apiKey: process.env.NEXT_PUBLIC_MISTRAL_API_KEY!
+  apiKey: process.env.NEXT_PUBLIC_MISTRAL_API_KEY!
 });
 
 type TestFramework = 'hardhat' | 'foundry' | 'remix';
 
 interface TestingOption {
-  id: TestFramework;
-  name: string;
-  description: string;
-  icon: JSX.Element;
-  features: string[];
+  id: TestFramework;
+  name: string;
+  description: string;
+  icon: JSX.Element;
+  features: string[];
 }
 
 const TESTING_OPTIONS: TestingOption[] = [
-  {
-    id: 'hardhat',
-    name: 'Hardhat Tests',
-    description: 'Generate JavaScript/TypeScript tests using Hardhat and Chai',
-    icon: <TestTube size={24} weight="duotone" />,
-    features: [
-      'JavaScript/TypeScript',
-      'Chai assertions',
-      'Ethers.js integration',
-      'Gas reporting'
-    ]
-  },
-  {
-    id: 'foundry',
-    name: 'Foundry Tests',
-    description: 'Generate Solidity-based tests using Foundry framework',
-    icon: <Code size={24} weight="duotone" />,
-    features: [
-      'Solidity native',
-      'Fuzzing support',
-      'Gas optimization',
-      'Fast execution'
-    ]
-  },
-  {
-    id: 'remix',
-    name: 'Remix Manual Tests',
-    description: 'Generate step-by-step manual testing instructions for Remix IDE',
-    icon: <FileCode size={24} weight="duotone" />,
-    features: [
-      'GUI-based testing',
-      'No setup required',
-      'Interactive steps',
-      'Visual verification'
-    ]
-  }
+  {
+    id: 'hardhat',
+    name: 'Hardhat Tests',
+    description: 'Generate JavaScript/TypeScript tests using Hardhat and Chai',
+    icon: <TestTube size={24} weight="duotone" />,
+    features: [
+      'JavaScript/TypeScript',
+      'Chai assertions',
+      'Ethers.js integration',
+      'Gas reporting'
+    ]
+  },
+  {
+    id: 'foundry',
+    name: 'Foundry Tests',
+    description: 'Generate Solidity-based tests using Foundry framework',
+    icon: <Code size={24} weight="duotone" />,
+    features: [
+      'Solidity native',
+      'Fuzzing support',
+      'Gas optimization',
+      'Fast execution'
+    ]
+  },
+  {
+    id: 'remix',
+    name: 'Remix Manual Tests',
+    description: 'Generate step-by-step manual testing instructions for Remix IDE',
+    icon: <FileCode size={24} weight="duotone" />,
+    features: [
+      'GUI-based testing',
+      'No setup required',
+      'Interactive steps',
+      'Visual verification'
+    ]
+  }
 ];
 
 export default function TestCaseGenerator() {
-  const [contractCode, setContractCode] = useState('');
-  const [generatedTests, setGeneratedTests] = useState('');
-  const [selectedFramework, setSelectedFramework] = useState<TestFramework>('hardhat');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [copySuccess, setCopySuccess] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [contractCode, setContractCode] = useState('');
+  const [generatedTests, setGeneratedTests] = useState('');
+  const [selectedFramework, setSelectedFramework] = useState<TestFramework>('hardhat');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
-  const getPromptForFramework = (code: string, framework: TestFramework) => {
-    const basePrompt = `You are an expert in smart contract testing. Generate comprehensive test cases for the following smart contract:
+  const getPromptForFramework = (code: string, framework: TestFramework) => {
+    const basePrompt = `You are a senior smart contract developer and Test-Driven Development (TDD) expert. Your task is to write a comprehensive, production-quality test suite for the provided Solidity smart contract.
 
-Contract code:
-${code}
+    **Core Testing Principles to Follow:**
+    1.  **Happy Path:** Test the intended functionality of each function with valid inputs.
+    2.  **Edge Cases:** Test with zero values, maximum values (e.g., \`type(uint256).max\`), and unusual but valid inputs.
+    3.  **Access Control:** Explicitly test that modifiers like \`onlyOwner\` work correctly. Write tests where unauthorized users attempt to call protected functions and confirm they fail.
+    4.  **Failure Conditions:** Crucially, write tests that EXPECT transactions to revert for each \`require\` statement.
+    5.  **Event Emissions:** Test that events are emitted with the correct parameters after state changes.
 
-Requirements:
-- Test all main contract functions
-- Include edge cases and error conditions
-- Test access control
-- Verify state changes
-- Check event emissions
-- Add gas optimization checks where relevant`;
+    **Contract to Test:**
+    \`\`\`solidity
+    ${code}
+    \`\`\`
+    ---
+    `;
 
-    const frameworkSpecific = {
-      hardhat: `
-Additional Requirements:
-- Use Hardhat and Chai with latest practices
-- Include complete test setup with TypeScript
-- Add proper describe/it blocks
-- Include deployment scripts
-- Add comprehensive assertions
-- Include gas usage reporting
-Return ONLY the complete test file code without any extra text.`,
+    const frameworkSpecifics = {
+      hardhat: `
+        **Framework: Hardhat (TypeScript)**
 
-      foundry: `
-Additional Requirements:
-- Use Foundry's Solidity testing framework
-- Include setUp() function
-- Use forge std assertions
-- Add fuzzing where appropriate
-- Include proper test annotations
-- Add gas optimization tests
-Return ONLY the complete test file code without any extra text.`,
+        **Instructions:**
+        - Generate a complete TypeScript test file using Hardhat, Ethers.js v6, and Chai.
+        - Structure tests logically using nested \`describe\` blocks (e.g., one main block for the contract, then sub-blocks for each function or feature).
+        - Use a \`beforeEach\` block to deploy a fresh contract instance for each test to ensure atomicity.
+        - For failure condition tests, use \`await expect(tx).to.be.revertedWith("Error message")\`.
+        - For event tests, use \`await expect(tx).to.emit(contract, "EventName").withArgs(...)\`.
+        - Write clean, readable code with comments explaining complex test setups.
 
-      remix: `
-Additional Requirements:
-- Create step-by-step manual testing instructions
-- Include specific input values to test
-- Add expected outcomes for each step
-- Include verification steps
-- Add troubleshooting notes
-- Include deployment instructions
-Return a structured list of testing steps without any extra text.`
-    };
+        **Output:**
+        Return ONLY the complete, runnable TypeScript test code inside a single code block. Do not include any other text, titles, or explanations.
+        `,
 
-    return basePrompt + frameworkSpecific[framework];
-  };
+      foundry: `
+        **Framework: Foundry (Solidity)**
 
-  const generateTests = async () => {
-    if (!contractCode.trim()) {
-      setError('Please enter contract code to generate tests');
-      return;
-    }
+        **Instructions:**
+        - Generate a complete Solidity test file that inherits from \`forge-std/Test.sol\`.
+        - Use a \`setUp()\` function for initial contract deployment and state configuration.
+        - Write clear, descriptive test function names, e.g., \`test_RevertWhen_CallerIsNotOwner()\`.
+        - For failure condition tests, use \`vm.expectRevert(...)\` with the specific error message.
+        - For event tests, use \`vm.expectEmit(...)\`.
+        - Implement fuzz testing for functions that take numerical or address inputs to cover a wide range of scenarios.
+        - Write clean, readable Solidity with comments explaining test logic.
 
-    setIsGenerating(true);
-    setError(null);
-    try {
-      const response = await mistralClient.chat.complete({
-        model: "mistral-large-latest",
-        messages: [
-          {
-            role: "user",
-            content: getPromptForFramework(contractCode, selectedFramework),
-          },
-        ],
-        temperature: 0.1,
-        maxTokens: 4096,
-      });
+        **Output:**
+        Return ONLY the complete, runnable Solidity test code inside a single code block. Do not include any other text, titles, or explanations.
+        `,
 
-      const generatedText = response.choices?.[0]?.message?.content || '';
+      remix: `
+        **Framework: Remix IDE (Manual Testing Guide)**
 
-      let cleanCode = '';
-      if (typeof generatedText === 'string') {
-        // Remove any markdown-style code blocks (```)
-        cleanCode = generatedText
-          .replace(/```[a-z]*\n/g, '')
-          .replace(/```/g, '')
-          .replace(/\*/g, '')
-          .trim();
-      } else {
-        setGeneratedTests('');
-      }
+        **Instructions:**
+        - Generate a detailed, step-by-step manual testing guide in Markdown format.
+        - Structure the guide with clear scenarios (e.g., "Scenario 1: Successful Contribution").
+        - For each scenario, provide a table with the following columns: "Step", "Action", "Account", "Parameters / Value", "Expected Outcome", and "Verification".
+        - Include instructions for deploying the contract in the Remix VM.
+        - Cover happy paths, access control failures, and other revert conditions.
 
-      setGeneratedTests(cleanCode);
+        **Output:**
+        Return ONLY the complete Markdown guide. Do not include any other text, titles, or explanations.
+        `
+    };
 
-    } catch (error) {
-      console.error('Test generation failed:', error);
-      setError('Failed to generate test cases. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+    return basePrompt + frameworkSpecifics[framework];
+  };
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
+  const generateTests = async () => {
+    if (!contractCode.trim()) {
+      setError('Please enter contract code to generate tests');
+      return;
+    }
 
+    setIsGenerating(true);
+    setError(null);
+    try {
+      const response = await mistralClient.chat.complete({
+        model: "mistral-small-latest",
+        messages: [
+          {
+            role: "user",
+            content: getPromptForFramework(contractCode, selectedFramework),
+          },
+        ],
+        temperature: 0.1,
+        maxTokens: 4096,
+      });
+
+      const generatedText = response.choices?.[0]?.message?.content || '';
+      let cleanCode = '';
+      if (typeof generatedText === 'string') {
+        cleanCode = generatedText
+          .replace(/^```[a-z]*\n?/gm, '')
+          .replace(/```$/gm, '')
+          .trim();
+      }
+      setGeneratedTests(cleanCode);
+
+    } catch (error) {
+      console.error('Test generation failed:', error);
+      setError('Failed to generate test cases. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
   return (
     <div className="min-h-screen py-12 bg-zinc-900 text-white">
       <div className="max-w-6xl mx-auto px-4">
