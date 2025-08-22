@@ -3,6 +3,8 @@
 import React, { JSX, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mistral } from '@mistralai/mistralai';
+import { vectorStore } from '@/utils/vectorStore';
+import { getVulnerabilityContext } from '@/utils/smartBugsData';
 import {
   FileCode,
   Robot,
@@ -151,44 +153,56 @@ export default function TestCaseGenerator() {
     return basePrompt + frameworkSpecifics[framework];
   };
 
-  const generateTests = async () => {
-    if (!contractCode.trim()) {
-      setError('Please enter contract code to generate tests');
-      return;
-    }
+  const generateTests = async () => {
+    if (!contractCode.trim()) {
+      setError('Please enter contract code to generate tests');
+      return;
+    }
 
-    setIsGenerating(true);
-    setError(null);
-    try {
-      const response = await mistralClient.chat.complete({
-        model: "mistral-small-latest",
-        messages: [
-          {
-            role: "user",
-            content: getPromptForFramework(contractCode, selectedFramework),
-          },
-        ],
-        temperature: 0.1,
-        maxTokens: 4096,
-      });
+    setIsGenerating(true);
+    setError(null);
+    
+    try {
+      // Get RAG context from vector store
+      const similarContracts = await vectorStore.searchSimilar(contractCode, 3);
+      
+      // Get vulnerability-specific examples
+      const vulnContext = getVulnerabilityContext(contractCode);
+      
+      // Build enhanced prompt with context
+      const contextualPrompt = getPromptForFramework(contractCode, selectedFramework) + 
+        `\n\nSimilar Contract Patterns:\n${similarContracts.map(c => c.chunk).join('\n\n')}` +
+        `\n\nVulnerability-Specific Test Patterns:\n${vulnContext.map(v => v.testPattern).join('\n\n')}`;
 
-      const generatedText = response.choices?.[0]?.message?.content || '';
-      let cleanCode = '';
-      if (typeof generatedText === 'string') {
-        cleanCode = generatedText
-          .replace(/^```[a-z]*\n?/gm, '')
-          .replace(/```$/gm, '')
-          .trim();
-      }
-      setGeneratedTests(cleanCode);
+      const response = await mistralClient.chat.complete({
+        model: "mistral-small-latest",
+        messages: [
+          {
+            role: "user",
+            content: contextualPrompt,
+          },
+        ],
+        temperature: 0.1,
+        maxTokens: 4096,
+      });
 
-    } catch (error) {
-      console.error('Test generation failed:', error);
-      setError('Failed to generate test cases. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+      const generatedText = response.choices?.[0]?.message?.content || '';
+      let cleanCode = '';
+      if (typeof generatedText === 'string') {
+        cleanCode = generatedText
+          .replace(/^```[a-z]*\n?/gm, '')
+          .replace(/```$/gm, '')
+          .trim();
+      }
+      setGeneratedTests(cleanCode);
+
+    } catch (error) {
+      console.error('Test generation failed:', error);
+      setError('Failed to generate test cases. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const copyToClipboard = async (text: string) => {
     try {
