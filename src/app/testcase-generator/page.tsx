@@ -3,7 +3,7 @@
 import React, { JSX, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mistral } from '@mistralai/mistralai';
-import { vectorStore } from '@/utils/vectorStore';
+// RAG integration via API calls for consistency
 import { getVulnerabilityContext } from '@/utils/smartBugsData';
 import {
   FileCode,
@@ -163,27 +163,99 @@ export default function TestCaseGenerator() {
     setError(null);
     
     try {
-      // Get RAG context from vector store
-      const similarContracts = await vectorStore.searchSimilar(contractCode, 3);
+      console.log('🔍 Starting RAG-enhanced test generation...');
+      
+      // Get RAG context via API call instead of direct import for consistency
+      let ragContext = '';
+      let similarContracts: any[] = [];
+      
+      try {
+        console.log('📊 Searching for similar contract patterns...');
+        
+        // Call our API route for similarity search
+        const ragResponse = await fetch('/api/search-similar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: contractCode,
+            limit: 5 // Increase limit for more comprehensive context
+          }),
+        });
+
+        if (ragResponse.ok) {
+          const ragData = await ragResponse.json();
+          similarContracts = ragData.results || [];
+          console.log(`📋 Found ${similarContracts.length} similar contracts for context`);
+          
+          if (similarContracts.length > 0) {
+            ragContext = `
+**SIMILAR CONTRACT TEST PATTERNS FROM KNOWLEDGE BASE:**
+${similarContracts.map((c, i) => `
+${i + 1}. Similarity Score: ${c.score?.toFixed(3)}
+Contract Type: ${c.metadata?.contractType || 'Unknown'}
+Security Level: ${c.metadata?.securityLevel || 'Unknown'}
+Test Insights: ${c.metadata?.documentationNotes || 'Standard patterns'}
+Code Pattern:
+\`\`\`solidity
+${c.chunk.substring(0, 400)}...
+\`\`\`
+Recommended Test Approach: Focus on ${c.metadata?.vulnerability ? `${c.metadata.vulnerability} vulnerability testing` : 'comprehensive coverage'}
+`).join('\n')}\n`;
+          }
+        } else {
+          console.warn('⚠️ RAG API call failed, proceeding with basic patterns');
+        }
+      } catch (ragError) {
+        console.warn(`⚠️ RAG search failed: ${(ragError as Error).message} - using fallback patterns`);
+      }
       
       // Get vulnerability-specific examples
       const vulnContext = getVulnerabilityContext(contractCode);
+      console.log(`🔒 Identified ${vulnContext.length} potential vulnerability patterns`);
       
-      // Build enhanced prompt with context
-      const contextualPrompt = getPromptForFramework(contractCode, selectedFramework) + 
-        `\n\nSimilar Contract Patterns:\n${similarContracts.map(c => c.chunk).join('\n\n')}` +
-        `\n\nVulnerability-Specific Test Patterns:\n${vulnContext.map(v => v.testPattern).join('\n\n')}`;
+      // Build comprehensive vulnerability testing context
+      const vulnerabilityTestContext = vulnContext.length > 0 ? `
+**VULNERABILITY-SPECIFIC TEST PATTERNS:**
+${vulnContext.map((v, i) => `
+${i + 1}. Vulnerability Pattern Detected:
+${v.documentation}
 
+Example Test Pattern for ${selectedFramework}:
+\`\`\`${selectedFramework === 'foundry' ? 'solidity' : 'javascript'}
+${v.testPattern}
+\`\`\`
+`).join('\n')}\n` : '';
+      
+      // Build the enhanced prompt with comprehensive RAG context
+      const basePrompt = getPromptForFramework(contractCode, selectedFramework);
+      
+      const enhancedPrompt = `${basePrompt}
+
+${ragContext}${vulnerabilityTestContext}
+
+**CRITICAL INSTRUCTIONS FOR RAG-ENHANCED TESTING:**
+1. **Leverage Similar Patterns**: Use the similar contract patterns above to identify common testing scenarios and edge cases.
+2. **Security-First Approach**: Pay special attention to the vulnerability patterns identified and ensure comprehensive negative testing.
+3. **Pattern-Based Coverage**: Build upon the successful test patterns from similar contracts while adapting them to this specific contract.
+4. **Framework Optimization**: Ensure tests are optimized for ${selectedFramework} best practices as shown in the examples.
+5. **Comprehensive Edge Cases**: Use insights from similar contracts to identify non-obvious edge cases and testing scenarios.
+
+**Remember**: Generate ONLY the complete, runnable test code. No explanations or additional text.`;
+
+      console.log('🤖 Calling Mistral API with enhanced RAG context...');
+      
       const response = await mistralClient.chat.complete({
-        model: "mistral-small-latest",
+        model: "mistral-large-latest", // Use more capable model for better RAG processing
         messages: [
           {
             role: "user",
-            content: contextualPrompt,
+            content: enhancedPrompt,
           },
         ],
         temperature: 0.1,
-        maxTokens: 4096,
+        maxTokens: 6144, // Increased for more comprehensive tests
       });
 
       const generatedText = response.choices?.[0]?.message?.content || '';
@@ -194,11 +266,17 @@ export default function TestCaseGenerator() {
           .replace(/```$/gm, '')
           .trim();
       }
+      
       setGeneratedTests(cleanCode);
+      console.log('✅ RAG-enhanced test generation completed successfully');
+      
+      if (similarContracts.length > 0) {
+        console.log(`📊 Enhanced with ${similarContracts.length} similar contract patterns`);
+      }
 
     } catch (error) {
       console.error('Test generation failed:', error);
-      setError('Failed to generate test cases. Please try again.');
+      setError(`Failed to generate test cases: ${(error as Error).message}`);
     } finally {
       setIsGenerating(false);
     }
@@ -222,6 +300,9 @@ export default function TestCaseGenerator() {
           </div>
           <h1 className="text-3xl font-mono font-bold mb-4 text-white">Test Case Generator</h1>
           <p className="text-gray-400">Generate comprehensive test cases for your smart contracts using different testing frameworks</p>
+          <div className="mt-2 text-sm text-blue-300">
+            🤖 Enhanced with RAG technology - leverages similar contract patterns for comprehensive test coverage
+          </div>
           <AnimatePresence>
             {error && (
               <motion.div
@@ -272,7 +353,7 @@ export default function TestCaseGenerator() {
                 value={contractCode}
                 onChange={(e) => setContractCode(e.target.value)}
                 placeholder="Paste your smart contract code here..."
-                className="w-full h-[400px] bg-transparent p-6 font-mono text-sm resize-none focus:outline-none focus:border-white focus:ring-1 focus:ring-white/50 transition-all duration-200 text-white"
+                className="w-full h-[600px] bg-transparent p-6 font-mono text-sm resize-none focus:outline-none focus:border-white focus:ring-1 focus:ring-white/50 transition-all duration-200 text-white"
               />
             </div>
             

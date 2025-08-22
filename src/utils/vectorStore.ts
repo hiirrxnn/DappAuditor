@@ -1,193 +1,135 @@
-import { generateEmbedding } from './embeddings';
-import { v4 as uuidv4 } from 'uuid';
+import { Pinecone } from '@pinecone-database/pinecone';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-export interface ContractMetadata {
-  vulnerabilities: string[];
-  testPatterns: string[];
-  documentationNotes: string[];
-  contractType: string;
-}
-
-interface VectorRecord {
+interface VectorDocument {
   id: string;
-  values: number[];
-  metadata: ContractMetadata & {
-    chunk: string;
-    chunkIndex: number;
-    code: string;
+  chunk: string;
+  score?: number;
+  metadata?: {
+    contractType?: string;
+    vulnerability?: string;
+    pattern?: string;
+    solidityVersion?: string;
+    securityLevel?: 'high' | 'medium' | 'low';
+    documentationNotes?: string;
   };
 }
 
-export class VectorStore {
-  private storageKey = 'auditfi-rag-vectors';
-  private vectors: VectorRecord[] = [];
+export class EnhancedVectorStore {
+  private pinecone: Pinecone;
+  private genAI: GoogleGenerativeAI;
+  private indexName: string;
 
   constructor() {
-    this.loadVectors();
-  }
-
-  private loadVectors(): void {
-    if (typeof window === 'undefined') return;
+    this.pinecone = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY!,
+    });
     
-    try {
-      const stored = localStorage.getItem(this.storageKey);
-      if (stored) {
-        this.vectors = JSON.parse(stored);
-        console.log(`Loaded ${this.vectors.length} vectors from storage`);
-      }
-    } catch (error) {
-      console.error('Error loading vectors from storage:', error);
-      this.vectors = [];
-    }
+    this.genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY!);
+    this.indexName = process.env.PINECONE_INDEX_NAME || 'auditfi-contracts';
   }
 
-  private saveVectors(): void {
-    if (typeof window === 'undefined') return;
-    
+  async initializeIndex() {
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(this.vectors));
-      console.log(`Saved ${this.vectors.length} vectors to storage`);
-    } catch (error) {
-      console.error('Error saving vectors to storage:', error);
-    }
-  }
+      const indexes = await this.pinecone.listIndexes();
+      const indexExists = indexes.indexes?.some(index => index.name === this.indexName);
 
-  async upsertContract(
-    code: string, 
-    metadata: ContractMetadata,
-    chunks: string[]
-  ): Promise<void> {
-    try {
-      console.log(`Upserting contract with ${chunks.length} chunks...`);
-      
-      const newVectors = await Promise.all(
-        chunks.map(async (chunk, i) => {
-          const embedding = await generateEmbedding(chunk);
-          return {
-            id: uuidv4(),
-            values: embedding,
-            metadata: {
-              ...metadata,
-              chunk: chunk,
-              chunkIndex: i,
-              code: code
+      if (!indexExists) {
+        await this.pinecone.createIndex({
+          name: this.indexName,
+          dimension: 768,
+          metric: 'cosine',
+          spec: {
+            serverless: {
+              cloud: 'aws',
+              region: 'us-east-1'
             }
-          };
-        })
-      );
+          }
+        });
+        
+        // Wait for index to be ready
+        await this.waitForIndexReady();
+      }
 
-      // Add new vectors to existing ones
-      this.vectors.push(...newVectors);
-      
-      // Save to localStorage
-      this.saveVectors();
-      
-      console.log(`Successfully upserted ${newVectors.length} vectors`);
+      return true;
     } catch (error) {
-      console.error('Error upserting contract:', error);
-      throw error;
+      console.error('Failed to initialize Pinecone:', error);
+      return false;
     }
   }
 
-  async searchSimilar(queryCode: string, topK: number = 5) {
-    try {
-      if (this.vectors.length === 0) {
-        console.log('No vectors in database, returning empty results');
-        return [];
+  private async waitForIndexReady(maxAttempts = 30) {
+    for (let i = 0; i < maxAttempts; i++) {
+      try {
+        const indexStats = await this.pinecone.index(this.indexName).describeIndexStats();
+        if (indexStats) return;
+      } catch (error) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
+    }
+    throw new Error('Index failed to become ready');
+  }
 
-      console.log(`Searching among ${this.vectors.length} vectors...`);
+  async generateEmbedding(text: string): Promise<number[]> {
+    const model = this.genAI.getGenerativeModel({ model: 'text-embedding-004' });
+    const result = await model.embedContent(text);
+    
+    if (!result.embedding?.values) {
+      throw new Error('No embedding values returned');
+    }
+    
+    return result.embedding.values;
+  }
+
+  async searchSimilar(query: string, limit: number = 5): Promise<VectorDocument[]> {
+    try {
+      const queryEmbedding = await this.generateEmbedding(query);
+      const index = this.pinecone.index(this.indexName);
       
-      const queryEmbedding = await generateEmbedding(queryCode);
-      
-      // Calculate cosine similarity for all vectors
-      const similarities = this.vectors.map(vector => {
-        const similarity = this.cosineSimilarity(queryEmbedding, vector.values);
-        return {
-          score: similarity,
-          metadata: vector.metadata,
-          chunk: vector.metadata.chunk
-        };
+      const searchResults = await index.query({
+        vector: queryEmbedding,
+        topK: limit,
+        includeMetadata: true,
       });
 
-      // Sort by similarity score (highest first) and return top K
-      const results = similarities
-        .sort((a, b) => b.score - a.score)
-        .slice(0, topK);
-
-      console.log(`Found ${results.length} similar vectors with scores:`, 
-        results.map(r => r.score.toFixed(3)).join(', '));
-      
-      return results;
+      return searchResults.matches?.map(match => ({
+        id: match.id || '',
+        chunk: match.metadata?.chunk as string || '',
+        score: match.score || 0,
+        metadata: {
+          contractType: match.metadata?.contractType as string,
+          vulnerability: match.metadata?.vulnerability as string,
+          pattern: match.metadata?.pattern as string,
+          solidityVersion: match.metadata?.solidityVersion as string,
+          securityLevel: match.metadata?.securityLevel as 'high' | 'medium' | 'low',
+          documentationNotes: match.metadata?.documentationNotes as string,
+        }
+      })) || [];
     } catch (error) {
-      console.error('Error searching similar vectors:', error);
+      console.error('Search failed:', error);
       return [];
     }
   }
 
-  private cosineSimilarity(a: number[], b: number[]): number {
-    if (a.length !== b.length) {
-      console.warn(`Vector length mismatch: ${a.length} vs ${b.length}`);
-      return 0;
-    }
-
-    const dotProduct = a.reduce((sum, ai, i) => sum + ai * b[i], 0);
-    const magnitudeA = Math.sqrt(a.reduce((sum, ai) => sum + ai * ai, 0));
-    const magnitudeB = Math.sqrt(b.reduce((sum, bi) => sum + bi * bi, 0));
+  async upsertDocuments(documents: VectorDocument[]) {
+    const index = this.pinecone.index(this.indexName);
     
-    if (magnitudeA === 0 || magnitudeB === 0) {
-      return 0;
-    }
-    
-    return dotProduct / (magnitudeA * magnitudeB);
-  }
+    const vectors = await Promise.all(
+      documents.map(async (doc) => {
+        const embedding = await this.generateEmbedding(doc.chunk);
+        return {
+          id: doc.id,
+          values: embedding,
+          metadata: {
+            chunk: doc.chunk,
+            ...doc.metadata
+          }
+        };
+      })
+    );
 
-  // Utility methods
-  getVectorCount(): number {
-    return this.vectors.length;
-  }
-
-  clearStorage(): void {
-    this.vectors = [];
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(this.storageKey);
-    }
-    console.log('Cleared all vectors from storage');
-  }
-
-  exportVectors(): string {
-    return JSON.stringify(this.vectors, null, 2);
-  }
-
-  importVectors(jsonData: string): void {
-    try {
-      const imported = JSON.parse(jsonData);
-      this.vectors = imported;
-      this.saveVectors();
-      console.log(`Imported ${this.vectors.length} vectors`);
-    } catch (error) {
-      console.error('Error importing vectors:', error);
-      throw new Error('Invalid vector data format');
-    }
-  }
-
-  // Get statistics about stored vectors
-  getStats() {
-    const vulnTypes = new Set();
-    const contractTypes = new Set();
-    
-    this.vectors.forEach(v => {
-      v.metadata.vulnerabilities.forEach(vuln => vulnTypes.add(vuln));
-      contractTypes.add(v.metadata.contractType);
-    });
-
-    return {
-      totalVectors: this.vectors.length,
-      uniqueVulnerabilityTypes: vulnTypes.size,
-      vulnerabilityTypes: Array.from(vulnTypes),
-      contractTypes: Array.from(contractTypes)
-    };
+    await index.upsert(vectors);
   }
 }
 
-export const vectorStore = new VectorStore();
+export const vectorStore = new EnhancedVectorStore();

@@ -105,42 +105,78 @@ const ContractDocsGenerator = () => {
   const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
 
-  const generateDocs = async () => {
-    if (!contractCode.trim()) return;
-    setIsGenerating(true);
-    setError(null);
+  const addDebugInfo = (message: string) => {
+  console.log(message);
+  setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+};
 
+const generateDocs = async () => {
+  if (!contractCode.trim()) {
+    setError('Please enter contract code to generate documentation');
+    return;
+  }
+
+  setIsGenerating(true);
+  setError(null);
+  setDebugInfo([]);
+
+  try {
+    addDebugInfo('🔍 Starting documentation generation...');
+    
+    // Check API keys
+    if (!process.env.NEXT_PUBLIC_MISTRAL_API_KEY) {
+      console.error('❌ Mistral API key not found');
+      setError('Mistral API key not configured. Please check your environment variables.');
+      return;
+    }
+
+    // Get RAG context via API call instead of direct import
+    let ragContext = '';
+    let similarContracts: any[] = [];
+    
     try {
-      console.log('🔍 Starting comprehensive documentation generation...');
+      addDebugInfo('🔍 Searching for similar contracts via API...');
       
-      // Check API key
-      if (!process.env.NEXT_PUBLIC_MISTRAL_API_KEY) {
-        console.error('❌ Mistral API key not found');
-        setError('Mistral API key not configured. Please check your environment variables.');
-        return;
-      }
-      
-      // Get RAG context for similar contracts and patterns
-      const similarContracts = await vectorStore.searchSimilar(contractCode, 3);
-      
-      console.log('📊 Found similar contracts for context:', similarContracts.length);
-      
-      // Build context from similar contracts for better documentation
-      const ragContext = `
-**SIMILAR CONTRACT PATTERNS FOR CONTEXT:**
+      // Call our API route instead of importing vectorStore directly
+      const ragResponse = await fetch('/api/search-similar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: contractCode,
+          limit: 3
+        }),
+      });
+
+      if (ragResponse.ok) {
+        const ragData = await ragResponse.json();
+        similarContracts = ragData.results || [];
+        addDebugInfo(`📊 Found ${similarContracts.length} similar contracts`);
+        
+        if (similarContracts.length > 0) {
+          ragContext = `
+**SIMILAR CONTRACT PATTERNS:**
 ${similarContracts.map((c, i) => `
-${i + 1}. Similarity Score: ${c.score?.toFixed(3)}
-Code Pattern: ${c.chunk}
-Implementation Notes: ${c.metadata?.documentationNotes || 'Standard implementation'}
-`).join('\n')}
-`;
+${i + 1}. Score: ${c.score?.toFixed(3)}
+Type: ${c.metadata?.contractType}
+Security: ${c.metadata?.securityLevel}
+Code: ${c.chunk.substring(0, 300)}...
+Notes: ${c.metadata?.documentationNotes}
+`).join('\n')}`;
+        }
+      } else {
+        addDebugInfo('⚠️ RAG API call failed, proceeding without context');
+      }
+    } catch (ragError) {
+      addDebugInfo(`⚠️ RAG failed: ${(ragError as Error).message} - continuing without context`);
+    }
 
-console.log('🤖 Sending request to Mistral API...');
+    // Build the enhanced prompt with RAG context
+    const enhancedPrompt = `You are a senior smart contract developer and technical documentation expert. Generate comprehensive, developer-focused documentation for this smart contract.
 
-const enhancedPrompt = `You are a senior smart contract developer and technical documentation expert. Generate comprehensive, developer-focused documentation for this smart contract.
-
-**CONTEXT FROM SIMILAR CONTRACTS:**
 ${ragContext}
 
 **CONTRACT TO DOCUMENT:**
@@ -156,19 +192,10 @@ ${contractCode}
   "version": "Version from pragma or 'Unknown'",
   "license": "License identifier or 'Not specified'", 
   "architecture": "Comprehensive architectural overview including design decisions, patterns used, and overall structure",
-  "designPatterns": [
-    "List of design patterns implemented (e.g., Factory, Proxy, Access Control, etc.)"
-  ],
-  "inheritanceStructure": [
-    "Parent contracts and interfaces inherited"
-  ],
-  "dependencies": [
-    "External contracts, libraries, or interfaces used"
-  ],
-  "usageExamples": [
-    "Practical examples of how to interact with this contract",
-    "Common integration patterns"
-  ],
+  "designPatterns": ["List of design patterns implemented"],
+  "inheritanceStructure": ["Parent contracts and interfaces inherited"],
+  "dependencies": ["External contracts, libraries, or interfaces used"],
+  "usageExamples": ["Practical examples of how to interact with this contract"],
   "constructorDetails": {
     "description": "Detailed explanation of constructor functionality",
     "params": [{"name": "param", "type": "type", "description": "Parameter explanation"}],
@@ -178,7 +205,7 @@ ${contractCode}
     {
       "name": "function name",
       "description": "Comprehensive explanation of function purpose, business logic, and behavior",
-      "params": [{"name": "param", "type": "type", "description": "Detailed parameter explanation with expected values"}],
+      "params": [{"name": "param", "type": "type", "description": "Detailed parameter explanation"}],
       "returns": [{"name": "return", "type": "type", "description": "Detailed return value explanation"}],
       "visibility": "visibility level",
       "mutability": "state mutability",
@@ -217,145 +244,57 @@ ${contractCode}
       "appliedTo": ["Functions that use this modifier"]
     }
   ],
-  "interfaceCompliance": [
-    "ERC standards or interfaces this contract implements"
-  ],
-  "deploymentNotes": [
-    "Important considerations for deployment",
-    "Constructor parameters needed",
-    "Post-deployment setup steps"
-  ]
+  "interfaceCompliance": ["ERC standards or interfaces this contract implements"],
+  "deploymentNotes": ["Important considerations for deployment"]
 }`;
 
-      console.log('📤 Making API call to Mistral...');
-      
-      const response = await mistralClient.chat.complete({
-        model: "mistral-large-latest",
-        messages: [{ role: "user", content: enhancedPrompt }],
-        responseFormat: { type: "json_object" },
-        temperature: 0.1,
-        maxTokens: 8192,
-      });
+    addDebugInfo('📤 Calling Mistral API...');
+    
+    const response = await mistralClient.chat.complete({
+      model: "mistral-large-latest",
+      messages: [{ role: "user", content: enhancedPrompt }],
+      responseFormat: { type: "json_object" },
+      temperature: 0.1,
+      maxTokens: 8192,
+    });
 
-      console.log('📥 Received response from Mistral API');
-      console.log('Response status:', response);
+    addDebugInfo('📥 Received response from Mistral API');
 
-      const rawContent = response.choices?.[0]?.message?.content;
-      console.log('Raw AI response:', rawContent);
-      
-      let jsonString = '';
-      
-      // Handle different response types from Mistral
-      if (typeof rawContent === 'string') {
-        jsonString = rawContent;
-      } else if (Array.isArray(rawContent)) {
-        // If content is an array of ContentChunks, extract text content
-        jsonString = rawContent.map(chunk => {
-          if (typeof chunk === 'string') {
-            return chunk;
-          } else if (chunk && typeof chunk === 'object' && 'type' in chunk) {
-            // Handle different chunk types
-            if (chunk.type === 'text' && 'text' in chunk) {
-              return chunk.text;
-            }
-            // For other chunk types (like image_url), return empty string
-            return '';
-          }
-          return '';
-        }).join('');
-      } else {
-        jsonString = '';
-      }
-      
-      if (jsonString) {
-        jsonString = jsonString.trim();
-        
-        // Clean up markdown formatting
-        if (jsonString.startsWith('```json')) {
-          jsonString = jsonString.substring(7).trimStart();
-        }
-        if (jsonString.endsWith('```')) {
-          jsonString = jsonString.slice(0, -3).trimEnd();
-        }
-        
-        // Remove any leading/trailing non-JSON content
-        const startIndex = jsonString.indexOf('{');
-        const endIndex = jsonString.lastIndexOf('}');
-        
-        if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-          jsonString = jsonString.substring(startIndex, endIndex + 1);
-        }
-      }
-
-      console.log('Cleaned JSON string:', jsonString);
-
-      if (!jsonString || jsonString.trim() === '') {
-        setError('AI response was empty. Please try again with a different contract or check your API key.');
-        return;
-      }
-
-      try {
-        const parsedDocs = JSON.parse(jsonString) as Documentation;
-        
-        // Validate required fields
-        if (!parsedDocs.name || !parsedDocs.description) {
-          throw new Error('Response missing required fields');
-        }
-        
-        // Add fallbacks for missing fields
-        const sanitizedDocs: Documentation = {
-          name: parsedDocs.name || 'Unknown Contract',
-          description: parsedDocs.description || 'No description available',
-          version: parsedDocs.version || 'Unknown',
-          license: parsedDocs.license || 'Not specified',
-          architecture: parsedDocs.architecture || 'No architectural analysis available',
-          designPatterns: Array.isArray(parsedDocs.designPatterns) ? parsedDocs.designPatterns : [],
-          inheritanceStructure: Array.isArray(parsedDocs.inheritanceStructure) ? parsedDocs.inheritanceStructure : [],
-          dependencies: Array.isArray(parsedDocs.dependencies) ? parsedDocs.dependencies : [],
-          usageExamples: Array.isArray(parsedDocs.usageExamples) ? parsedDocs.usageExamples : [],
-          functions: Array.isArray(parsedDocs.functions) ? parsedDocs.functions : [],
-          events: Array.isArray(parsedDocs.events) ? parsedDocs.events : [],
-          variables: Array.isArray(parsedDocs.variables) ? parsedDocs.variables : [],
-          modifiers: Array.isArray(parsedDocs.modifiers) ? parsedDocs.modifiers : [],
-          constructorDetails: parsedDocs.constructorDetails || {
-            description: 'No constructor details available',
-            params: [],
-            initialization: []
-          },
-          interfaceCompliance: Array.isArray(parsedDocs.interfaceCompliance) ? parsedDocs.interfaceCompliance : [],
-          deploymentNotes: Array.isArray(parsedDocs.deploymentNotes) ? parsedDocs.deploymentNotes : []
-        };
-        
-        setDocumentation(sanitizedDocs);
-        console.log('✅ Comprehensive documentation generated successfully');
-      } catch (parseError: unknown) {
-        console.error('Failed to parse response:', parseError);
-        console.log('Problematic JSON string:', jsonString);
-        console.log('JSON string length:', jsonString.length);
-        console.log('First 500 chars:', jsonString.substring(0, 500));
-        console.log('Last 500 chars:', jsonString.substring(Math.max(0, jsonString.length - 500)));
-        
-        // Get error message safely
-        const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parsing error';
-        
-        // Try to provide a more helpful error message
-        if (jsonString.includes('```')) {
-          setError('AI returned markdown formatting. The response may be incomplete or truncated. Please try again.');
-        } else if (jsonString.length === 0) {
-          setError('AI returned an empty response. Please check your API key and try again.');
-        } else if (!jsonString.includes('{')) {
-          setError('AI response does not appear to be JSON. Please try again.');
-        } else {
-          setError(`Failed to parse AI response as JSON. The response may be incomplete or malformed. Error: ${errorMessage}`);
-        }
-      }
-    } catch (err) {
-      console.error('Generation failed:', err);
-      setError('Failed to generate documentation. Please try again.');
-    } finally {
-      setIsGenerating(false);
+    const rawContent = response.choices?.[0]?.message?.content;
+    let jsonString = typeof rawContent === 'string' ? rawContent : '';
+    
+    // Clean up the response
+    jsonString = jsonString.trim();
+    if (jsonString.startsWith('```json')) {
+      jsonString = jsonString.substring(7).trimStart();
     }
-  };
+    if (jsonString.endsWith('```')) {
+      jsonString = jsonString.slice(0, -3).trimEnd();
+    }
+
+    const parsedDocs = JSON.parse(jsonString) as Documentation;
+    
+    // Validate and set documentation
+    if (!parsedDocs.name || !parsedDocs.description) {
+      throw new Error('Response missing required fields');
+    }
+    
+    setDocumentation(parsedDocs);
+    addDebugInfo('✅ Documentation generated successfully');
+    
+    if (similarContracts.length > 0) {
+      addDebugInfo(`📊 RAG enhanced documentation with ${similarContracts.length} similar contract patterns`);
+    }
+    
+  } catch (err) {
+    const errorMessage = (err as Error).message;
+    addDebugInfo(`💥 Generation failed: ${errorMessage}`);
+    console.error('Generation failed:', err);
+    setError(`Failed to generate documentation: ${errorMessage}`);
+  } finally {
+    setIsGenerating(false);
+  }
+};
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -531,7 +470,7 @@ ${documentation.deploymentNotes.length > 0 ? documentation.deploymentNotes.map(n
                 value={contractCode}
                 onChange={(e) => setContractCode(e.target.value)}
                 placeholder="Paste your smart contract code here..."
-                className="w-full h-[400px] bg-transparent p-6 font-mono text-sm resize-none focus:outline-none focus:border-white focus:ring-1 focus:ring-white/50 transition-all duration-200 text-white custom-scrollbar"
+                className="w-full h-[600px] bg-transparent p-6 font-mono text-sm resize-none focus:outline-none focus:border-white focus:ring-1 focus:ring-white/50 transition-all duration-200 text-white custom-scrollbar"
               />
             </div>
             <button
