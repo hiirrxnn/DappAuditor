@@ -25,7 +25,7 @@ const projectId = 'b8ad206ba9492e6096fa0aa0f868586c';
 
 // Configure the wagmi client with Rainbow Kit
 const config = getDefaultConfig({
-  appName: 'AuditFi',
+  appName: 'DappAuditor',
   projectId,
   chains: [sepolia], // Use Sepolia from wagmi/chains
   transports: {
@@ -34,8 +34,8 @@ const config = getDefaultConfig({
   ssr: true, // Enable server-side rendering support
 });
 
-// Create a custom theme that matches AuditFi's UI
-const auditFiTheme = {
+// Create a custom theme that matches DappAuditor's UI
+const dappAuditorTheme = {
   ...darkTheme(),
   colors: {
     ...darkTheme().colors,
@@ -75,11 +75,11 @@ export function RainbowKitProviderWrapper({ children }: { children: React.ReactN
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
-          theme={auditFiTheme}
+          theme={dappAuditorTheme}
           showRecentTransactions={false} // Hide recent transactions
           modalSize="compact"
           appInfo={{
-            appName: 'AuditFi',
+            appName: 'DappAuditor',
             learnMoreUrl: 'https://sepolia.etherscan.io',
           }}
           initialChain={sepolia.id} // Always start on Sepolia

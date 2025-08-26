@@ -75,14 +75,14 @@ function MainLayout({ children }: RootLayoutProps) {
                 <div className="absolute inset-0 bg-white/20 rounded-full blur-[10px] group-hover:bg-white/30 transition-all duration-300"></div>
                 <Image 
                   src="/logo.svg"
-                  alt="AuditFi Logo"
+                  alt="DappAuditor Logo"
                   width={34}
                   height={34}
                   className="relative z-10 group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
               <span className="text-xl font-mono font-bold text-white group-hover:text-gray-300 transition-colors duration-200">
-                AuditFi
+                DappAuditor
               </span>
             </Link>
 

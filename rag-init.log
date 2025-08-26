@@ -1,0 +1,934 @@
+[dotenv@17.2.1] injecting env (7) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+✅ Environment variables loaded successfully
+🔑 Pinecone API Key: pcsk_75KEu...
+🔑 Google AI API Key: AIzaSyA6lK...
+🎯 Starting Enhanced RAG Database Initialization...
+📚 This will fetch contracts from:
+   • Etherscan (verified contracts)
+   • GitHub (OpenZeppelin, Uniswap, Aave, etc.)
+   • Curated high-quality examples
+   • Vulnerability examples for testing\n
+🚀 ENHANCED PINECONE RAG DATABASE INITIALIZATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7:50:19 PM] 🗄️  Initializing Pinecone vector database...
+[7:50:21 PM] ✅ Pinecone initialization completed
+[7:50:21 PM] 🧹 Clearing existing vectors from the index for fresh initialization...
+[7:50:23 PM] ⚠️  Index clearing failed, but continuing (index might already be empty)
+[7:50:23 PM] 🌐 Starting Etherscan contract fetching...
+🚀 Fetching 12 contracts from Etherscan...
+🔍 Fetching contract from Etherscan: 0xA0b86a33E6441c8C76D9dC7C05D18a7c4ac3F8aa
+[7:50:23 PM] 🐱 Starting GitHub repository crawling...
+🚀 Crawling 9 GitHub repositories...
+[7:50:23 PM] ⭐ Starting curated contract fetching...
+🚀 Fetching 15 curated high-quality contracts...
+🔍 Fetching curated contract: https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/master/contracts/token/ERC20/ERC20.sol
+✅ Successfully fetched OpenZeppelin ERC20 (erc20, standard, openzeppelin)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/master/contracts/token/ERC721/ERC721.sol
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts
+✅ Successfully fetched OpenZeppelin ERC721 (erc721, nft, openzeppelin)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/master/contracts/access/AccessControl.sol
+✅ Successfully fetched OpenZeppelin AccessControl (access-control, rbac, openzeppelin)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/master/contracts/utils/ReentrancyGuard.sol
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/access
+✅ Successfully fetched OpenZeppelin ReentrancyGuard (reentrancy, guard, security)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/master/contracts/utils/Pausable.sol
+⚠️ Empty source code for USDC
+🔍 Fetching contract from Etherscan: 0x6B175474E89094C44Da98b954EedeAC495271d0F
+✅ Successfully fetched OpenZeppelin Pausable (pausable, emergency, utility)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/Uniswap/v3-core/main/contracts/UniswapV3Pool.sol
+✅ Added AccessControl.sol (openzeppelin_accesscontrol) from OpenZeppelin/openzeppelin-contracts
+✅ Successfully fetched Uniswap V3 Pool (uniswap, amm, defi, liquidity)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/Uniswap/v3-core/main/contracts/UniswapV3Factory.sol
+✅ Successfully fetched DAI (erc20_implementation)
+🔍 Fetching contract from Etherscan: 0xdac17f958d2ee523a2206206994597c13d831ec7
+✅ Added Ownable.sol (openzeppelin_ownable) from OpenZeppelin/openzeppelin-contracts
+✅ Successfully fetched Uniswap V3 Factory (uniswap, factory, defi)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/compound-finance/compound-protocol/master/contracts/CToken.sol
+✅ Successfully fetched USDT (erc20_implementation)
+🔍 Fetching contract from Etherscan: 0x2260fac5e5542a773aa44fbcfedf7c193bc2c599
+✅ Added Ownable2Step.sol (openzeppelin_ownable2step) from OpenZeppelin/openzeppelin-contracts
+✅ Successfully fetched Compound cToken (compound, lending, interest)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/compound-finance/compound-protocol/master/contracts/Comptroller.sol
+✅ Successfully fetched WBTC (erc20_implementation)
+🔍 Fetching contract from Etherscan: 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/access/extensions
+✅ Successfully fetched Compound Comptroller (compound, controller, risk-management)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/aave/aave-v3-core/master/contracts/protocol/pool/Pool.sol
+✅ Successfully fetched Aave LendingPool (dao_governance)
+🔍 Fetching contract from Etherscan: 0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B
+✅ Successfully fetched Aave LendingPool (aave, lending, flashloan)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/smartcontractkit/chainlink/develop/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol
+✅ Added AccessControlDefaultAdminRules.sol (openzeppelin_accesscontroldefaultadminrules) from OpenZeppelin/openzeppelin-contracts
+❌ Failed to fetch https://raw.githubusercontent.com/smartcontractkit/chainlink/develop/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol: Error: HTTP 404: Not Found
+    at CuratedFetcher.fetchContractFromUrl (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/curatedFetcher.ts:32:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async CuratedFetcher.fetchAllCuratedContracts (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/curatedFetcher.ts:138:25)
+    at async EnhancedPineconeInitializer.fetchCuratedContracts (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:133:25)
+    at async Promise.allSettled (index 2)
+    at async EnhancedPineconeInitializer.initializeEnhancedDatabase (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:277:69)
+    at async initializeEnhancedPinecone (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:339:5)
+⚠️ Skipping Chainlink AggregatorV3 - insufficient content
+🔍 Fetching curated contract: https://raw.githubusercontent.com/makerdao/dss/master/src/vat.sol
+✅ Added AccessControlEnumerable.sol (openzeppelin_accesscontrolenumerable) from OpenZeppelin/openzeppelin-contracts
+✅ Successfully fetched Compound cETH (lending_protocol)
+🔍 Fetching contract from Etherscan: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
+✅ Successfully fetched MakerDAO Vat (makerdao, dai, vault)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/larvalabs/cryptopunks/master/contracts/CryptoPunksMarket.sol
+✅ Successfully fetched Uniswap Token (erc20_implementation)
+🔍 Fetching contract from Etherscan: 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/access/manager
+✅ Successfully fetched CryptoPunks (nft, marketplace, cryptopunks)
+🔍 Fetching curated contract: https://raw.githubusercontent.com/safe-global/safe-contracts/main/contracts/GnosisSafe.sol
+❌ Failed to fetch https://raw.githubusercontent.com/safe-global/safe-contracts/main/contracts/GnosisSafe.sol: Error: HTTP 404: Not Found
+    at CuratedFetcher.fetchContractFromUrl (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/curatedFetcher.ts:32:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async CuratedFetcher.fetchAllCuratedContracts (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/curatedFetcher.ts:138:25)
+    at async EnhancedPineconeInitializer.fetchCuratedContracts (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:133:25)
+    at async Promise.allSettled (index 2)
+    at async EnhancedPineconeInitializer.initializeEnhancedDatabase (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:277:69)
+    at async initializeEnhancedPinecone (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:339:5)
+⚠️ Skipping Gnosis Safe - insufficient content
+🔍 Fetching curated contract: https://raw.githubusercontent.com/1inch/1inch-v5-contracts/master/contracts/AggregationRouterV5.sol
+✅ Successfully fetched CryptoPunks (erc20_implementation)
+🔍 Fetching contract from Etherscan: 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D
+❌ Failed to fetch https://raw.githubusercontent.com/1inch/1inch-v5-contracts/master/contracts/AggregationRouterV5.sol: Error: HTTP 404: Not Found
+    at CuratedFetcher.fetchContractFromUrl (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/curatedFetcher.ts:32:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async CuratedFetcher.fetchAllCuratedContracts (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/curatedFetcher.ts:138:25)
+    at async EnhancedPineconeInitializer.fetchCuratedContracts (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:133:25)
+    at async Promise.allSettled (index 2)
+    at async EnhancedPineconeInitializer.initializeEnhancedDatabase (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:277:69)
+    at async initializeEnhancedPinecone (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:339:5)
+⚠️ Skipping 1inch AggregationRouterV5 - insufficient content
+🎉 Successfully fetched 12 curated contracts
+[7:50:29 PM] ✅ Curated contract fetching completed (12)
+[7:50:29 PM] 🔍 Vulnerability analysis completed for curated contracts
+❌ Etherscan API error for 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D: NOTOK
+⚠️ No source code found for BAYC (0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D)
+🔍 Fetching contract from Etherscan: 0x60E4d786628Fea6478F785A6d7e704777c86a7c6
+✅ Added AccessManaged.sol (openzeppelin_accessmanaged) from OpenZeppelin/openzeppelin-contracts
+✅ Added AccessManager.sol (openzeppelin_accessmanager) from OpenZeppelin/openzeppelin-contracts
+✅ Successfully fetched MAYC (erc721_implementation)
+🔍 Fetching contract from Etherscan: 0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5
+✅ Successfully fetched Ens Registry (erc721_implementation)
+🔍 Fetching contract from Etherscan: 0x00000000006c3852cbEf3e08E8dF289169EdE581
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/account
+✅ Successfully fetched OpenSea Seaport (general_contract)
+🎉 Successfully fetched 10 contracts from Etherscan
+[7:50:31 PM] ✅ Etherscan fetching completed (10)
+✅ Added Account.sol (openzeppelin_account) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/account/extensions
+✅ Added draft-AccountERC7579.sol (openzeppelin_draft-accounterc7579) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-AccountERC7579Hooked.sol (openzeppelin_draft-accounterc7579hooked) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-ERC7821.sol (openzeppelin_draft-erc7821) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/account/utils
+✅ Added EIP7702Utils.sol (openzeppelin_eip7702utils) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-ERC7579Utils.sol (openzeppelin_draft-erc7579utils) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/finance
+✅ Added VestingWallet.sol (openzeppelin_vestingwallet) from OpenZeppelin/openzeppelin-contracts
+✅ Added VestingWalletCliff.sol (openzeppelin_vestingwalletcliff) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/governance
+✅ Added Governor.sol (openzeppelin_governor) from OpenZeppelin/openzeppelin-contracts
+✅ Added TimelockController.sol (openzeppelin_timelockcontroller) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/governance/extensions
+✅ Added GovernorCountingFractional.sol (openzeppelin_governorcountingfractional) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorCountingOverridable.sol (openzeppelin_governorcountingoverridable) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorCountingSimple.sol (openzeppelin_governorcountingsimple) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorNoncesKeyed.sol (openzeppelin_governornonceskeyed) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorPreventLateQuorum.sol (openzeppelin_governorpreventlatequorum) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorProposalGuardian.sol (openzeppelin_governorproposalguardian) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorSequentialProposalId.sol (openzeppelin_governorsequentialproposalid) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorSettings.sol (openzeppelin_governorsettings) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorStorage.sol (openzeppelin_governorstorage) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorSuperQuorum.sol (openzeppelin_governorsuperquorum) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorTimelockAccess.sol (openzeppelin_governortimelockaccess) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorTimelockCompound.sol (openzeppelin_governortimelockcompound) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorTimelockControl.sol (openzeppelin_governortimelockcontrol) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorVotes.sol (openzeppelin_governorvotes) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorVotesQuorumFraction.sol (openzeppelin_governorvotesquorumfraction) from OpenZeppelin/openzeppelin-contracts
+✅ Added GovernorVotesSuperQuorumFraction.sol (openzeppelin_governorvotessuperquorumfraction) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/governance/utils
+✅ Added Votes.sol (openzeppelin_votes) from OpenZeppelin/openzeppelin-contracts
+✅ Added VotesExtended.sol (openzeppelin_votesextended) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/interfaces
+✅ Added draft-IERC1822.sol (openzeppelin_draft-ierc1822) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-IERC4337.sol (openzeppelin_draft-ierc4337) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-IERC7786.sol (openzeppelin_draft-ierc7786) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/metatx
+✅ Added ERC2771Context.sol (openzeppelin_erc2771context) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC2771Forwarder.sol (openzeppelin_erc2771forwarder) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks
+✅ Added AccessManagedTarget.sol (openzeppelin_accessmanagedtarget) from OpenZeppelin/openzeppelin-contracts
+✅ Added BatchCaller.sol (openzeppelin_batchcaller) from OpenZeppelin/openzeppelin-contracts
+✅ Added DummyImplementation.sol (openzeppelin_dummyimplementation) from OpenZeppelin/openzeppelin-contracts
+✅ Added EIP712Verifier.sol (openzeppelin_eip712verifier) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/ERC165
+✅ Added ERC165InterfacesSupported.sol (openzeppelin_erc165interfacessupported) from OpenZeppelin/openzeppelin-contracts
+✅ Added MulticallHelper.sol (openzeppelin_multicallhelper) from OpenZeppelin/openzeppelin-contracts
+✅ Added ReentrancyAttack.sol (openzeppelin_reentrancyattack) from OpenZeppelin/openzeppelin-contracts
+✅ Added RegressionImplementation.sol (openzeppelin_regressionimplementation) from OpenZeppelin/openzeppelin-contracts
+✅ Added Stateless.sol (openzeppelin_stateless) from OpenZeppelin/openzeppelin-contracts
+✅ Added TimelockReentrant.sol (openzeppelin_timelockreentrant) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/account
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/account/modules
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/account/utils
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/compound
+✅ Added CompTimelock.sol (openzeppelin_comptimelock) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs
+✅ Added ERC20WithAutoMinerReward.sol (openzeppelin_erc20withautominerreward) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC4626Fees.sol (openzeppelin_erc4626fees) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/access-control
+✅ Added AccessControlERC20MintBase.sol (openzeppelin_accesscontrolerc20mintbase) from OpenZeppelin/openzeppelin-contracts
+✅ Added AccessControlERC20MintMissing.sol (openzeppelin_accesscontrolerc20mintmissing) from OpenZeppelin/openzeppelin-contracts
+✅ Added AccessControlERC20MintOnlyRole.sol (openzeppelin_accesscontrolerc20mintonlyrole) from OpenZeppelin/openzeppelin-contracts
+✅ Added AccessManagedERC20MintBase.sol (openzeppelin_accessmanagederc20mintbase) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/account
+✅ Added MyAccountERC7702.sol (openzeppelin_myaccounterc7702) from OpenZeppelin/openzeppelin-contracts
+✅ Added MyFactoryAccount.sol (openzeppelin_myfactoryaccount) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/governance
+✅ Added MyGovernor.sol (openzeppelin_mygovernor) from OpenZeppelin/openzeppelin-contracts
+✅ Added MyToken.sol (openzeppelin_mytoken) from OpenZeppelin/openzeppelin-contracts
+✅ Added MyTokenTimestampBased.sol (openzeppelin_mytokentimestampbased) from OpenZeppelin/openzeppelin-contracts
+✅ Added MyTokenWrapped.sol (openzeppelin_mytokenwrapped) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/token
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/token/ERC1155
+✅ Added GameItems.sol (openzeppelin_gameitems) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/token/ERC20
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/token/ERC6909
+✅ Added ERC6909GameItems.sol (openzeppelin_erc6909gameitems) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/token/ERC721
+✅ Added GameItem.sol (openzeppelin_gameitem) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/docs/utilities
+✅ Added Base64NFT.sol (openzeppelin_base64nft) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/governance
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/proxy
+✅ Added ClashingImplementation.sol (openzeppelin_clashingimplementation) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/token
+✅ Added ERC20GetterHelper.sol (openzeppelin_erc20getterhelper) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC20Reentrant.sol (openzeppelin_erc20reentrant) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/utils
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/mocks/utils/cryptography
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/proxy
+✅ Added Clones.sol (openzeppelin_clones) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/proxy/ERC1967
+✅ Added ERC1967Proxy.sol (openzeppelin_erc1967proxy) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC1967Utils.sol (openzeppelin_erc1967utils) from OpenZeppelin/openzeppelin-contracts
+✅ Added Proxy.sol (openzeppelin_proxy) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/proxy/beacon
+✅ Added BeaconProxy.sol (openzeppelin_beaconproxy) from OpenZeppelin/openzeppelin-contracts
+✅ Added UpgradeableBeacon.sol (openzeppelin_upgradeablebeacon) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/proxy/transparent
+✅ Added ProxyAdmin.sol (openzeppelin_proxyadmin) from OpenZeppelin/openzeppelin-contracts
+✅ Added TransparentUpgradeableProxy.sol (openzeppelin_transparentupgradeableproxy) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/proxy/utils
+✅ Added UUPSUpgradeable.sol (openzeppelin_uupsupgradeable) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC1155
+✅ Added ERC1155.sol (openzeppelin_erc1155) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC1155/extensions
+✅ Added ERC1155Burnable.sol (openzeppelin_erc1155burnable) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC1155Pausable.sol (openzeppelin_erc1155pausable) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC1155Supply.sol (openzeppelin_erc1155supply) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC1155URIStorage.sol (openzeppelin_erc1155uristorage) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC1155/utils
+✅ Added ERC1155Holder.sol (openzeppelin_erc1155holder) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC1155Utils.sol (openzeppelin_erc1155utils) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20
+✅ Added ERC20.sol (openzeppelin_erc20) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions
+✅ Added ERC1363.sol (openzeppelin_erc1363) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC20Burnable.sol (openzeppelin_erc20burnable) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC20Capped.sol (openzeppelin_erc20capped) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC20FlashMint.sol (openzeppelin_erc20flashmint) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC20Pausable.sol (openzeppelin_erc20pausable) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC20Permit.sol (openzeppelin_erc20permit) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC20Votes.sol (openzeppelin_erc20votes) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC20Wrapper.sol (openzeppelin_erc20wrapper) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC4626.sol (openzeppelin_erc4626) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-ERC20Bridgeable.sol (openzeppelin_draft-erc20bridgeable) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-ERC20TemporaryApproval.sol (openzeppelin_draft-erc20temporaryapproval) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/utils
+✅ Added ERC1363Utils.sol (openzeppelin_erc1363utils) from OpenZeppelin/openzeppelin-contracts
+✅ Added SafeERC20.sol (openzeppelin_safeerc20) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC6909
+✅ Added draft-ERC6909.sol (openzeppelin_draft-erc6909) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC6909/extensions
+✅ Added draft-ERC6909ContentURI.sol (openzeppelin_draft-erc6909contenturi) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-ERC6909Metadata.sol (openzeppelin_draft-erc6909metadata) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-ERC6909TokenSupply.sol (openzeppelin_draft-erc6909tokensupply) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC721
+✅ Added ERC721.sol (openzeppelin_erc721) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC721/extensions
+✅ Added ERC721Burnable.sol (openzeppelin_erc721burnable) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC721Consecutive.sol (openzeppelin_erc721consecutive) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC721Enumerable.sol (openzeppelin_erc721enumerable) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC721Pausable.sol (openzeppelin_erc721pausable) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC721Royalty.sol (openzeppelin_erc721royalty) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC721URIStorage.sol (openzeppelin_erc721uristorage) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC721Votes.sol (openzeppelin_erc721votes) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC721Wrapper.sol (openzeppelin_erc721wrapper) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/ERC721/utils
+✅ Added ERC721Holder.sol (openzeppelin_erc721holder) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC721Utils.sol (openzeppelin_erc721utils) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/token/common
+✅ Added ERC2981.sol (openzeppelin_erc2981) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/utils
+✅ Added Address.sol (openzeppelin_address) from OpenZeppelin/openzeppelin-contracts
+✅ Added Arrays.sol (openzeppelin_arrays) from OpenZeppelin/openzeppelin-contracts
+✅ Added Base64.sol (openzeppelin_base64) from OpenZeppelin/openzeppelin-contracts
+✅ Added Blockhash.sol (openzeppelin_blockhash) from OpenZeppelin/openzeppelin-contracts
+✅ Added Bytes.sol (openzeppelin_bytes) from OpenZeppelin/openzeppelin-contracts
+✅ Added CAIP10.sol (openzeppelin_caip10) from OpenZeppelin/openzeppelin-contracts
+✅ Added CAIP2.sol (openzeppelin_caip2) from OpenZeppelin/openzeppelin-contracts
+✅ Added Calldata.sol (openzeppelin_calldata) from OpenZeppelin/openzeppelin-contracts
+✅ Added Context.sol (openzeppelin_context) from OpenZeppelin/openzeppelin-contracts
+✅ Added Create2.sol (openzeppelin_create2) from OpenZeppelin/openzeppelin-contracts
+✅ Added Errors.sol (openzeppelin_errors) from OpenZeppelin/openzeppelin-contracts
+✅ Added Memory.sol (openzeppelin_memory) from OpenZeppelin/openzeppelin-contracts
+✅ Added Multicall.sol (openzeppelin_multicall) from OpenZeppelin/openzeppelin-contracts
+✅ Added Nonces.sol (openzeppelin_nonces) from OpenZeppelin/openzeppelin-contracts
+✅ Added NoncesKeyed.sol (openzeppelin_nonceskeyed) from OpenZeppelin/openzeppelin-contracts
+✅ Added Panic.sol (openzeppelin_panic) from OpenZeppelin/openzeppelin-contracts
+✅ Added Pausable.sol (openzeppelin_pausable) from OpenZeppelin/openzeppelin-contracts
+✅ Added ReentrancyGuard.sol (openzeppelin_reentrancyguard) from OpenZeppelin/openzeppelin-contracts
+✅ Added ReentrancyGuardTransient.sol (openzeppelin_reentrancyguardtransient) from OpenZeppelin/openzeppelin-contracts
+✅ Added ShortStrings.sol (openzeppelin_shortstrings) from OpenZeppelin/openzeppelin-contracts
+✅ Added SlotDerivation.sol (openzeppelin_slotderivation) from OpenZeppelin/openzeppelin-contracts
+✅ Added StorageSlot.sol (openzeppelin_storageslot) from OpenZeppelin/openzeppelin-contracts
+✅ Added Strings.sol (openzeppelin_strings) from OpenZeppelin/openzeppelin-contracts
+✅ Added TransientSlot.sol (openzeppelin_transientslot) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/utils/cryptography
+✅ Added ECDSA.sol (openzeppelin_ecdsa) from OpenZeppelin/openzeppelin-contracts
+✅ Added EIP712.sol (openzeppelin_eip712) from OpenZeppelin/openzeppelin-contracts
+✅ Added Hashes.sol (openzeppelin_hashes) from OpenZeppelin/openzeppelin-contracts
+✅ Added MerkleProof.sol (openzeppelin_merkleproof) from OpenZeppelin/openzeppelin-contracts
+✅ Added MessageHashUtils.sol (openzeppelin_messagehashutils) from OpenZeppelin/openzeppelin-contracts
+✅ Added P256.sol (openzeppelin_p256) from OpenZeppelin/openzeppelin-contracts
+✅ Added RSA.sol (openzeppelin_rsa) from OpenZeppelin/openzeppelin-contracts
+✅ Added SignatureChecker.sol (openzeppelin_signaturechecker) from OpenZeppelin/openzeppelin-contracts
+✅ Added WebAuthn.sol (openzeppelin_webauthn) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-ERC7739Utils.sol (openzeppelin_draft-erc7739utils) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/utils/cryptography/signers
+✅ Added AbstractSigner.sol (openzeppelin_abstractsigner) from OpenZeppelin/openzeppelin-contracts
+✅ Added MultiSignerERC7913.sol (openzeppelin_multisignererc7913) from OpenZeppelin/openzeppelin-contracts
+✅ Added MultiSignerERC7913Weighted.sol (openzeppelin_multisignererc7913weighted) from OpenZeppelin/openzeppelin-contracts
+✅ Added SignerECDSA.sol (openzeppelin_signerecdsa) from OpenZeppelin/openzeppelin-contracts
+✅ Added SignerERC7702.sol (openzeppelin_signererc7702) from OpenZeppelin/openzeppelin-contracts
+✅ Added SignerERC7913.sol (openzeppelin_signererc7913) from OpenZeppelin/openzeppelin-contracts
+✅ Added SignerP256.sol (openzeppelin_signerp256) from OpenZeppelin/openzeppelin-contracts
+✅ Added SignerRSA.sol (openzeppelin_signerrsa) from OpenZeppelin/openzeppelin-contracts
+✅ Added SignerWebAuthn.sol (openzeppelin_signerwebauthn) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-ERC7739.sol (openzeppelin_draft-erc7739) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/utils/cryptography/verifiers
+✅ Added ERC7913P256Verifier.sol (openzeppelin_erc7913p256verifier) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC7913RSAVerifier.sol (openzeppelin_erc7913rsaverifier) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC7913WebAuthnVerifier.sol (openzeppelin_erc7913webauthnverifier) from OpenZeppelin/openzeppelin-contracts
+✅ Added draft-InteroperableAddress.sol (openzeppelin_draft-interoperableaddress) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/utils/introspection
+✅ Added ERC165.sol (openzeppelin_erc165) from OpenZeppelin/openzeppelin-contracts
+✅ Added ERC165Checker.sol (openzeppelin_erc165checker) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/utils/math
+✅ Added Math.sol (openzeppelin_math) from OpenZeppelin/openzeppelin-contracts
+✅ Added SafeCast.sol (openzeppelin_safecast) from OpenZeppelin/openzeppelin-contracts
+✅ Added SignedMath.sol (openzeppelin_signedmath) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/utils/structs
+✅ Added BitMaps.sol (openzeppelin_bitmaps) from OpenZeppelin/openzeppelin-contracts
+✅ Added Checkpoints.sol (openzeppelin_checkpoints) from OpenZeppelin/openzeppelin-contracts
+✅ Added CircularBuffer.sol (openzeppelin_circularbuffer) from OpenZeppelin/openzeppelin-contracts
+✅ Added DoubleEndedQueue.sol (openzeppelin_doubleendedqueue) from OpenZeppelin/openzeppelin-contracts
+✅ Added EnumerableMap.sol (openzeppelin_enumerablemap) from OpenZeppelin/openzeppelin-contracts
+✅ Added EnumerableSet.sol (openzeppelin_enumerableset) from OpenZeppelin/openzeppelin-contracts
+✅ Added Heap.sol (openzeppelin_heap) from OpenZeppelin/openzeppelin-contracts
+✅ Added MerkleTree.sol (openzeppelin_merkletree) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/utils/types
+✅ Added Time.sol (openzeppelin_time) from OpenZeppelin/openzeppelin-contracts
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/vendor
+🌟 OpenZeppelin/openzeppelin-contracts (26149 stars): OpenZeppelin Contracts is a library for secure smart contract development.
+🔍 Fetching files from OpenZeppelin/openzeppelin-contracts/contracts/vendor/compound
+🎉 Successfully crawled OpenZeppelin/openzeppelin-contracts: 178 contracts
+🌟 Uniswap/v3-core (4755 stars): 🦄 🦄 🦄 Core smart contracts of Uniswap v3
+🔍 Fetching files from Uniswap/v3-core/contracts
+✅ Added NoDelegateCall.sol (advanced_contract) from Uniswap/v3-core
+✅ Added UniswapV3Factory.sol (advanced_contract) from Uniswap/v3-core
+✅ Added UniswapV3Pool.sol (advanced_contract) from Uniswap/v3-core
+✅ Added UniswapV3PoolDeployer.sol (advanced_contract) from Uniswap/v3-core
+🌟 Uniswap/v3-core (4755 stars): 🦄 🦄 🦄 Core smart contracts of Uniswap v3
+🔍 Fetching files from Uniswap/v3-core/contracts/interfaces
+🌟 Uniswap/v3-core (4755 stars): 🦄 🦄 🦄 Core smart contracts of Uniswap v3
+🔍 Fetching files from Uniswap/v3-core/contracts/interfaces/callback
+🌟 Uniswap/v3-core (4755 stars): 🦄 🦄 🦄 Core smart contracts of Uniswap v3
+🔍 Fetching files from Uniswap/v3-core/contracts/interfaces/pool
+🌟 Uniswap/v3-core (4755 stars): 🦄 🦄 🦄 Core smart contracts of Uniswap v3
+🔍 Fetching files from Uniswap/v3-core/contracts/libraries
+✅ Added BitMath.sol (advanced_contract) from Uniswap/v3-core
+✅ Added FullMath.sol (advanced_contract) from Uniswap/v3-core
+✅ Added LiquidityMath.sol (advanced_contract) from Uniswap/v3-core
+✅ Added LowGasSafeMath.sol (advanced_contract) from Uniswap/v3-core
+✅ Added Oracle.sol (advanced_contract) from Uniswap/v3-core
+✅ Added Position.sol (advanced_contract) from Uniswap/v3-core
+✅ Added SafeCast.sol (advanced_contract) from Uniswap/v3-core
+✅ Added SqrtPriceMath.sol (advanced_contract) from Uniswap/v3-core
+✅ Added SwapMath.sol (advanced_contract) from Uniswap/v3-core
+✅ Added Tick.sol (advanced_contract) from Uniswap/v3-core
+✅ Added TickBitmap.sol (advanced_contract) from Uniswap/v3-core
+✅ Added TickMath.sol (advanced_contract) from Uniswap/v3-core
+✅ Added TransferHelper.sol (access_control_issues) from Uniswap/v3-core
+✅ Added UnsafeMath.sol (advanced_contract) from Uniswap/v3-core
+🎉 Successfully crawled Uniswap/v3-core: 18 contracts
+🌟 Uniswap/v2-core (3168 stars): 🦄 🦄  Core smart contracts of Uniswap V2
+🔍 Fetching files from Uniswap/v2-core/contracts
+✅ Added UniswapV2ERC20.sol (access_control_issues) from Uniswap/v2-core
+✅ Added UniswapV2Factory.sol (advanced_contract) from Uniswap/v2-core
+✅ Added UniswapV2Pair.sol (advanced_contract) from Uniswap/v2-core
+🌟 Uniswap/v2-core (3168 stars): 🦄 🦄  Core smart contracts of Uniswap V2
+🔍 Fetching files from Uniswap/v2-core/contracts/interfaces
+🌟 Uniswap/v2-core (3168 stars): 🦄 🦄  Core smart contracts of Uniswap V2
+🔍 Fetching files from Uniswap/v2-core/contracts/libraries
+✅ Added Math.sol (advanced_contract) from Uniswap/v2-core
+✅ Added SafeMath.sol (advanced_contract) from Uniswap/v2-core
+✅ Added UQ112x112.sol (advanced_contract) from Uniswap/v2-core
+🎉 Successfully crawled Uniswap/v2-core: 6 contracts
+🌟 compound-finance/compound-protocol (1961 stars): The Compound On-Chain Protocol
+🔍 Fetching files from compound-finance/compound-protocol/contracts
+✅ Added BaseJumpRateModelV2.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added CDaiDelegate.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added CErc20.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added CErc20Delegate.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added CErc20Delegator.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added CErc20Immutable.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added CEther.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added CToken.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added CTokenInterfaces.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added ComptrollerInterface.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added ComptrollerStorage.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added DAIInterestRateModelV3.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added ErrorReporter.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added ExponentialNoError.sol (compound_lending) from compound-finance/compound-protocol
+🌟 compound-finance/compound-protocol (1961 stars): The Compound On-Chain Protocol
+🔍 Fetching files from compound-finance/compound-protocol/contracts/Governance
+✅ Added Comp.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added GovernorAlpha.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added GovernorBravoDelegate.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added GovernorBravoDelegateG1.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added GovernorBravoDelegateG2.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added GovernorBravoDelegator.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added GovernorBravoInterfaces.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added JumpRateModel.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added JumpRateModelV2.sol (compound_lending) from compound-finance/compound-protocol
+🌟 compound-finance/compound-protocol (1961 stars): The Compound On-Chain Protocol
+🔍 Fetching files from compound-finance/compound-protocol/contracts/Lens
+✅ Added CompoundLens.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added Maximillion.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added PriceOracle.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added Reservoir.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added SafeMath.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added SimplePriceOracle.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added Timelock.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added Unitroller.sol (compound_lending) from compound-finance/compound-protocol
+✅ Added WhitePaperInterestRateModel.sol (compound_lending) from compound-finance/compound-protocol
+🎉 Successfully crawled compound-finance/compound-protocol: 32 contracts
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/dependencies
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/dependencies/chainlink
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/dependencies/gnosis
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/dependencies/gnosis/contracts
+✅ Added GPv2SafeERC20.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/dependencies/openzeppelin
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/dependencies/openzeppelin/contracts
+✅ Added AccessControl.sol (aave_lending) from aave/aave-v3-core
+✅ Added Address.sol (aave_lending) from aave/aave-v3-core
+✅ Added Context.sol (aave_lending) from aave/aave-v3-core
+✅ Added ERC165.sol (aave_lending) from aave/aave-v3-core
+✅ Added ERC20.sol (aave_lending) from aave/aave-v3-core
+✅ Added Ownable.sol (aave_lending) from aave/aave-v3-core
+✅ Added SafeCast.sol (aave_lending) from aave/aave-v3-core
+✅ Added SafeERC20.sol (aave_lending) from aave/aave-v3-core
+✅ Added SafeMath.sol (aave_lending) from aave/aave-v3-core
+✅ Added Strings.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/dependencies/openzeppelin/upgradeability
+✅ Added AdminUpgradeabilityProxy.sol (aave_lending) from aave/aave-v3-core
+✅ Added BaseAdminUpgradeabilityProxy.sol (aave_lending) from aave/aave-v3-core
+✅ Added BaseUpgradeabilityProxy.sol (aave_lending) from aave/aave-v3-core
+✅ Added Proxy.sol (aave_lending) from aave/aave-v3-core
+✅ Added UpgradeabilityProxy.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/dependencies/weth
+✅ Added WETH9.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/deployments
+✅ Added ReservesSetupHelper.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/flashloan
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/flashloan/base
+✅ Added FlashLoanReceiverBase.sol (aave_lending) from aave/aave-v3-core
+✅ Added FlashLoanSimpleReceiverBase.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/flashloan/interfaces
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/interfaces
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/misc
+✅ Added AaveOracle.sol (aave_lending) from aave/aave-v3-core
+✅ Added AaveProtocolDataProvider.sol (aave_lending) from aave/aave-v3-core
+✅ Added L2Encoder.sol (aave_lending) from aave/aave-v3-core
+✅ Added ZeroReserveInterestRateStrategy.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/misc/interfaces
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/mocks
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/mocks/flashloan
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/mocks/helpers
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/mocks/oracle
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/mocks/oracle/CLAggregators
+✅ Added PriceOracle.sol (aave_lending) from aave/aave-v3-core
+✅ Added SequencerOracle.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/mocks/tokens
+✅ Added MintableDelegationERC20.sol (aave_lending) from aave/aave-v3-core
+✅ Added MintableERC20.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/mocks/upgradeability
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/configuration
+✅ Added ACLManager.sol (aave_lending) from aave/aave-v3-core
+✅ Added PoolAddressesProvider.sol (aave_lending) from aave/aave-v3-core
+✅ Added PoolAddressesProviderRegistry.sol (aave_lending) from aave/aave-v3-core
+✅ Added PriceOracleSentinel.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/libraries
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/libraries/aave-upgradeability
+✅ Added BaseImmutableAdminUpgradeabilityProxy.sol (aave_lending) from aave/aave-v3-core
+✅ Added VersionedInitializable.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/libraries/configuration
+✅ Added ReserveConfiguration.sol (aave_lending) from aave/aave-v3-core
+✅ Added UserConfiguration.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/libraries/helpers
+✅ Added Errors.sol (aave_lending) from aave/aave-v3-core
+✅ Added Helpers.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/libraries/logic
+✅ Added BorrowLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added BridgeLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added CalldataLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added ConfiguratorLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added EModeLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added FlashLoanLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added GenericLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added LiquidationLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added PoolLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added ReserveLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added SupplyLogic.sol (aave_lending) from aave/aave-v3-core
+✅ Added ValidationLogic.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/libraries/math
+✅ Added MathUtils.sol (aave_lending) from aave/aave-v3-core
+✅ Added PercentageMath.sol (aave_lending) from aave/aave-v3-core
+✅ Added WadRayMath.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/libraries/types
+✅ Added ConfiguratorInputTypes.sol (aave_lending) from aave/aave-v3-core
+✅ Added DataTypes.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/pool
+✅ Added DefaultReserveInterestRateStrategy.sol (aave_lending) from aave/aave-v3-core
+✅ Added L2Pool.sol (aave_lending) from aave/aave-v3-core
+✅ Added Pool.sol (aave_lending) from aave/aave-v3-core
+✅ Added PoolConfigurator.sol (aave_lending) from aave/aave-v3-core
+✅ Added PoolStorage.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/tokenization
+✅ Added AToken.sol (aave_lending) from aave/aave-v3-core
+✅ Added DelegationAwareAToken.sol (aave_lending) from aave/aave-v3-core
+✅ Added StableDebtToken.sol (aave_lending) from aave/aave-v3-core
+✅ Added VariableDebtToken.sol (aave_lending) from aave/aave-v3-core
+🌟 aave/aave-v3-core (992 stars): This repository contains the core smart contracts of the Aave V3 protocol.
+🔍 Fetching files from aave/aave-v3-core/contracts/protocol/tokenization/base
+✅ Added DebtTokenBase.sol (aave_lending) from aave/aave-v3-core
+✅ Added EIP712Base.sol (aave_lending) from aave/aave-v3-core
+✅ Added MintableIncentivizedERC20.sol (aave_lending) from aave/aave-v3-core
+✅ Added ScaledBalanceTokenBase.sol (aave_lending) from aave/aave-v3-core
+🎉 Successfully crawled aave/aave-v3-core: 68 contracts
+🌟 smartcontractkit/chainlink (7483 stars): node of the decentralized oracle network, bridging on and off-chain computation
+🔍 Fetching files from smartcontractkit/chainlink/contracts/src
+❌ Failed to fetch files from smartcontractkit/chainlink/contracts/src: Error: GitHub API error: 404 Not Found
+    at GitHubFetcher.fetchRepositoryFiles (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/githubFetcher.ts:64:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async GitHubFetcher.crawlRepository (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/githubFetcher.ts:360:21)
+    at async GitHubFetcher.fetchAllGitHubContracts (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/githubFetcher.ts:422:27)
+    at async EnhancedPineconeInitializer.fetchFromGitHub (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:114:25)
+    at async Promise.allSettled (index 1)
+    at async EnhancedPineconeInitializer.initializeEnhancedDatabase (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:277:69)
+    at async initializeEnhancedPinecone (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:339:5)
+🎉 Successfully crawled smartcontractkit/chainlink: 0 contracts
+🌟 makerdao/dss (786 stars): Dai Stablecoin System
+🔍 Fetching files from makerdao/dss/src
+✅ Added abaci.sol (makerdao_cdp) from makerdao/dss
+✅ Added cat.sol (makerdao_cdp) from makerdao/dss
+✅ Added clip.sol (makerdao_cdp) from makerdao/dss
+✅ Added cure.sol (makerdao_cdp) from makerdao/dss
+✅ Added dai.sol (makerdao_cdp) from makerdao/dss
+✅ Added dog.sol (makerdao_cdp) from makerdao/dss
+✅ Added end.sol (makerdao_cdp) from makerdao/dss
+✅ Added flap.sol (makerdao_cdp) from makerdao/dss
+✅ Added flip.sol (makerdao_cdp) from makerdao/dss
+✅ Added flop.sol (makerdao_cdp) from makerdao/dss
+✅ Added join.sol (makerdao_cdp) from makerdao/dss
+✅ Added jug.sol (makerdao_cdp) from makerdao/dss
+✅ Added pot.sol (makerdao_cdp) from makerdao/dss
+✅ Added spot.sol (makerdao_cdp) from makerdao/dss
+✅ Added vat.sol (makerdao_cdp) from makerdao/dss
+✅ Added vow.sol (makerdao_cdp) from makerdao/dss
+🎉 Successfully crawled makerdao/dss: 16 contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts
+✅ Added Safe.sol (upgradeable_proxy) from safe-global/safe-contracts
+✅ Added SafeL2.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/accessors
+✅ Added SimulateTxAccessor.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/base
+✅ Added Executor.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added FallbackManager.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added GuardManager.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added ModuleManager.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added OwnerManager.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/common
+✅ Added NativeCurrencyPaymentFallback.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added SecuredTokenTransfer.sol (access_control_issues) from safe-global/safe-contracts
+✅ Added SelfAuthorized.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added SignatureDecoder.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added Singleton.sol (upgradeable_proxy) from safe-global/safe-contracts
+✅ Added StorageAccessible.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/examples
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/examples/guards
+✅ Added BaseGuard.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added DebugTransactionGuard.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added DelegateCallTransactionGuard.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added OnlyOwnersGuard.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added ReentrancyTransactionGuard.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/examples/libraries
+✅ Added Migrate_1_3_0_to_1_2_0.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/external
+✅ Added SafeMath.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/handler
+✅ Added CompatibilityFallbackHandler.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added ExtensibleFallbackHandler.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added HandlerContext.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added TokenCallbackHandler.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/handler/extensible
+✅ Added ERC165Handler.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added ExtensibleBase.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added FallbackHandler.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added MarshalLib.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added SignatureVerifierMuxer.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added TokenCallbacks.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/interfaces
+✅ Added ERC1155TokenReceiver.sol (access_control_issues) from safe-global/safe-contracts
+✅ Added ERC721TokenReceiver.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added ERC777TokensRecipient.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/libraries
+✅ Added CreateCall.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added Enum.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added ErrorMessage.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added MultiSend.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added MultiSendCallOnly.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added SafeMigration.sol (upgradeable_proxy) from safe-global/safe-contracts
+✅ Added SafeStorage.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added SafeToL2Setup.sol (advanced_contract) from safe-global/safe-contracts
+✅ Added SignMessageLib.sol (advanced_contract) from safe-global/safe-contracts
+🌟 safe-global/safe-contracts (2035 stars): Safe allows secure management of blockchain assets. 
+🔍 Fetching files from safe-global/safe-contracts/contracts/proxies
+✅ Added SafeProxy.sol (upgradeable_proxy) from safe-global/safe-contracts
+✅ Added SafeProxyFactory.sol (upgradeable_proxy) from safe-global/safe-contracts
+🎉 Successfully crawled safe-global/safe-contracts: 45 contracts
+🌟 1inch/1inch-v5-contracts (0 stars): 
+🔍 Fetching files from 1inch/1inch-v5-contracts/contracts
+❌ Failed to fetch files from 1inch/1inch-v5-contracts/contracts: Error: GitHub API error: 404 Not Found
+    at GitHubFetcher.fetchRepositoryFiles (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/githubFetcher.ts:64:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async GitHubFetcher.crawlRepository (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/githubFetcher.ts:360:21)
+    at async GitHubFetcher.fetchAllGitHubContracts (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/githubFetcher.ts:422:27)
+    at async EnhancedPineconeInitializer.fetchFromGitHub (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:114:25)
+    at async Promise.allSettled (index 1)
+    at async EnhancedPineconeInitializer.initializeEnhancedDatabase (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:277:69)
+    at async initializeEnhancedPinecone (/Users/hiirrxnn/Desktop/DappAuditor/src/scripts/enhancedInitializePinecone.ts:339:5)
+🎉 Successfully crawled 1inch/1inch-v5-contracts: 0 contracts
+🏆 Total contracts from GitHub: 363
+[7:55:34 PM] ✅ GitHub crawling completed (363)
+[7:55:34 PM] 🔄 Removed duplicates (379)
+[7:55:34 PM] 📦 Starting batch upsert of 379 contracts with rate limiting...
+[7:55:38 PM] 📝 Upserted batch 1/76 (5)
+[7:55:38 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 1/76 complete)
+[7:56:46 PM] 📝 Upserted batch 2/76 (5)
+[7:56:46 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 2/76 complete)
+[7:57:55 PM] 📝 Upserted batch 3/76 (5)
+[7:57:55 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 3/76 complete)
+[7:59:03 PM] 📝 Upserted batch 4/76 (5)
+[7:59:03 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 4/76 complete)
+[8:00:11 PM] 📝 Upserted batch 5/76 (5)
+[8:00:11 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 5/76 complete)
+[8:01:20 PM] 📝 Upserted batch 6/76 (5)
+[8:01:20 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 6/76 complete)
+[8:02:29 PM] 📝 Upserted batch 7/76 (5)
+[8:02:29 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 7/76 complete)
+[8:03:37 PM] 📝 Upserted batch 8/76 (5)
+[8:03:37 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 8/76 complete)
+[8:04:47 PM] 📝 Upserted batch 9/76 (5)
+[8:04:47 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 9/76 complete)
+[8:05:57 PM] 📝 Upserted batch 10/76 (5)
+[8:05:57 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 10/76 complete)
+[8:07:06 PM] 📝 Upserted batch 11/76 (5)
+[8:07:06 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 11/76 complete)
+[8:08:16 PM] 📝 Upserted batch 12/76 (5)
+[8:08:16 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 12/76 complete)
+[8:09:26 PM] 📝 Upserted batch 13/76 (5)
+[8:09:26 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 13/76 complete)
+[8:10:38 PM] 📝 Upserted batch 14/76 (5)
+[8:10:38 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 14/76 complete)
+[8:27:11 PM] 📝 Upserted batch 15/76 (5)
+[8:27:11 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 15/76 complete)
+[8:28:19 PM] 📝 Upserted batch 16/76 (5)
+[8:28:19 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 16/76 complete)
+[8:29:28 PM] 📝 Upserted batch 17/76 (5)
+[8:29:28 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 17/76 complete)
+[8:30:37 PM] 📝 Upserted batch 18/76 (5)
+[8:30:37 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 18/76 complete)
+[8:31:45 PM] 📝 Upserted batch 19/76 (5)
+[8:31:45 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 19/76 complete)
+[8:32:53 PM] 📝 Upserted batch 20/76 (5)
+[8:32:53 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 20/76 complete)
+[8:34:02 PM] 📝 Upserted batch 21/76 (5)
+[8:34:02 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 21/76 complete)
+[8:35:11 PM] 📝 Upserted batch 22/76 (5)
+[8:35:11 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 22/76 complete)
+[8:36:20 PM] 📝 Upserted batch 23/76 (5)
+[8:36:20 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 23/76 complete)
+[8:37:28 PM] 📝 Upserted batch 24/76 (5)
+[8:37:28 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 24/76 complete)
+[8:38:37 PM] 📝 Upserted batch 25/76 (5)
+[8:38:37 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 25/76 complete)
+[8:39:45 PM] 📝 Upserted batch 26/76 (5)
+[8:39:45 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 26/76 complete)
+[8:40:53 PM] 📝 Upserted batch 27/76 (5)
+[8:40:53 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 27/76 complete)
+[8:42:02 PM] 📝 Upserted batch 28/76 (5)
+[8:42:02 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 28/76 complete)
+[8:43:11 PM] 📝 Upserted batch 29/76 (5)
+[8:43:11 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 29/76 complete)
+[8:44:20 PM] 📝 Upserted batch 30/76 (5)
+[8:44:20 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 30/76 complete)
+[8:45:30 PM] 📝 Upserted batch 31/76 (5)
+[8:45:30 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 31/76 complete)
+[8:46:38 PM] 📝 Upserted batch 32/76 (5)
+[8:46:38 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 32/76 complete)
+[8:47:47 PM] 📝 Upserted batch 33/76 (5)
+[8:47:47 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 33/76 complete)
+[8:48:56 PM] 📝 Upserted batch 34/76 (5)
+[8:48:56 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 34/76 complete)
+[8:50:04 PM] 📝 Upserted batch 35/76 (5)
+[8:50:04 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 35/76 complete)
+[8:51:13 PM] 📝 Upserted batch 36/76 (5)
+[8:51:13 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 36/76 complete)
+[8:52:21 PM] 📝 Upserted batch 37/76 (5)
+[8:52:21 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 37/76 complete)
+[8:53:30 PM] 📝 Upserted batch 38/76 (5)
+[8:53:30 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 38/76 complete)
+[8:54:38 PM] 📝 Upserted batch 39/76 (5)
+[8:54:38 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 39/76 complete)
+[8:55:46 PM] 📝 Upserted batch 40/76 (5)
+[8:55:46 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 40/76 complete)
+[8:56:55 PM] 📝 Upserted batch 41/76 (5)
+[8:56:55 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 41/76 complete)
+[8:58:03 PM] 📝 Upserted batch 42/76 (5)
+[8:58:03 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 42/76 complete)
+[8:59:11 PM] 📝 Upserted batch 43/76 (5)
+[8:59:11 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 43/76 complete)
+[9:00:20 PM] 📝 Upserted batch 44/76 (5)
+[9:00:20 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 44/76 complete)
+[9:01:29 PM] 📝 Upserted batch 45/76 (5)
+[9:01:29 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 45/76 complete)
+[9:02:37 PM] 📝 Upserted batch 46/76 (5)
+[9:02:37 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 46/76 complete)
+[9:03:47 PM] 📝 Upserted batch 47/76 (5)
+[9:03:47 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 47/76 complete)
+[9:04:56 PM] 📝 Upserted batch 48/76 (5)
+[9:04:56 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 48/76 complete)
+[9:06:05 PM] 📝 Upserted batch 49/76 (5)
+[9:06:05 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 49/76 complete)
+[9:07:13 PM] 📝 Upserted batch 50/76 (5)
+[9:07:13 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 50/76 complete)
+[9:08:21 PM] 📝 Upserted batch 51/76 (5)
+[9:08:21 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 51/76 complete)
+[9:09:29 PM] 📝 Upserted batch 52/76 (5)
+[9:09:29 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 52/76 complete)
+[9:10:38 PM] 📝 Upserted batch 53/76 (5)
+[9:10:38 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 53/76 complete)
+[9:11:47 PM] 📝 Upserted batch 54/76 (5)
+[9:11:47 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 54/76 complete)
+[9:12:56 PM] 📝 Upserted batch 55/76 (5)
+[9:12:56 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 55/76 complete)
+[9:14:04 PM] 📝 Upserted batch 56/76 (5)
+[9:14:04 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 56/76 complete)
+[9:15:13 PM] 📝 Upserted batch 57/76 (5)
+[9:15:13 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 57/76 complete)
+[9:16:22 PM] 📝 Upserted batch 58/76 (5)
+[9:16:22 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 58/76 complete)
+[9:17:31 PM] 📝 Upserted batch 59/76 (5)
+[9:17:31 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 59/76 complete)
+[9:18:40 PM] 📝 Upserted batch 60/76 (5)
+[9:18:40 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 60/76 complete)
+[9:19:50 PM] 📝 Upserted batch 61/76 (5)
+[9:19:50 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 61/76 complete)
+[9:20:59 PM] 📝 Upserted batch 62/76 (5)
+[9:20:59 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 62/76 complete)
+[9:22:07 PM] 📝 Upserted batch 63/76 (5)
+[9:22:07 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 63/76 complete)
+[9:23:15 PM] 📝 Upserted batch 64/76 (5)
+[9:23:15 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 64/76 complete)
+[9:24:24 PM] 📝 Upserted batch 65/76 (5)
+[9:24:24 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 65/76 complete)
+[9:25:32 PM] 📝 Upserted batch 66/76 (5)
+[9:25:32 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 66/76 complete)
+[9:26:41 PM] 📝 Upserted batch 67/76 (5)
+[9:26:41 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 67/76 complete)
+[9:27:49 PM] 📝 Upserted batch 68/76 (5)
+[9:27:49 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 68/76 complete)
+[9:28:57 PM] 📝 Upserted batch 69/76 (5)
+[9:28:57 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 69/76 complete)
+[9:30:06 PM] 📝 Upserted batch 70/76 (5)
+[9:30:06 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 70/76 complete)
+[9:31:14 PM] 📝 Upserted batch 71/76 (5)
+[9:31:14 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 71/76 complete)
+[9:32:22 PM] 📝 Upserted batch 72/76 (5)
+[9:32:22 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 72/76 complete)
+[9:33:30 PM] 📝 Upserted batch 73/76 (5)
+[9:33:30 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 73/76 complete)
+[9:34:39 PM] 📝 Upserted batch 74/76 (5)
+[9:34:39 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 74/76 complete)
+[9:35:47 PM] 📝 Upserted batch 75/76 (5)
+[9:35:47 PM] ⏳ Waiting 65 seconds to respect Google AI API rate limits... (batch 75/76 complete)
+[9:36:55 PM] 📝 Upserted batch 76/76 (4)
+\n🎉 ENHANCED RAG DATABASE INITIALIZATION COMPLETE!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 TOTAL CONTRACTS: 379
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+\n📈 BY SOURCE:
+   ETHERSCAN: 10 contracts
+   GITHUB: 363 contracts
+   CURATED: 6 contracts
+\n🏷️  BY CATEGORY:
+   defi: 118 contracts
+   standard: 118 contracts
+   utility: 70 contracts
+   token: 27 contracts
+   nft: 15 contracts
+   access: 9 contracts
+   vulnerable: 7 contracts
+   governance: 6 contracts
+   proxy: 5 contracts
+   security: 3 contracts
+   wallet: 1 contracts
+\n🔒 BY SECURITY LEVEL:
+   🟡 MEDIUM: 260 contracts
+   🟢 HIGH: 69 contracts
+   🔴 LOW: 50 contracts
+\n⚠️  VULNERABLE CONTRACTS: 309 (81.5%)
+🎯 UNIQUE PATTERNS: 195
+\n🔍 Sample patterns: erc20_implementation, dao_governance, lending_protocol, erc721_implementation, general_contract, openzeppelin_accesscontrol, openzeppelin_ownable, openzeppelin_ownable2step, openzeppelin_accesscontroldefaultadminrules, openzeppelin_accesscontrolenumerable
+\n🚀 Your RAG system is now powered by real-world, production-grade smart contracts!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n
+⏱️  Total initialization time: 6396.0 seconds
+🎊 SUCCESS! Your RAG system is now dramatically enhanced!
+💡 Next steps:
+   1. Test the enhanced system with contract analysis
+   2. Monitor RAG metrics for improved relevance
+   3. Add more contracts as needed

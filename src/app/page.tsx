@@ -202,7 +202,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-lg" />
               <Image
                 src="/screenshot.png"
-                alt="AuditFi Interface"
+                alt="DappAuditor Interface"
                 width={600}
                 height={400}
                 className="rounded-lg shadow-2xl border border-gray-800"
@@ -506,8 +506,8 @@ export default function Home() {
             {/* Logo and social */}
             <div>
               <div className="flex items-center mb-4">
-                <Image src="/favicon.ico" alt="AuditFi Logo" width={32} height={32} />
-                <span className="ml-2 text-xl font-bold">AuditFi</span>
+                <Image src="/favicon.ico" alt="DappAuditor Logo" width={32} height={32} />
+                <span className="ml-2 text-xl font-bold">DappAuditor</span>
               </div>
               <p className="text-gray-400 mb-4">Secure your smart contracts with AI-powered analysis and on-chain verification.</p>
               <div className="flex items-center space-x-6">
@@ -572,7 +572,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>© {new Date().getFullYear()} AuditFi. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} DappAuditor. All rights reserved.</p>
           </div>
         </div>
       </footer>

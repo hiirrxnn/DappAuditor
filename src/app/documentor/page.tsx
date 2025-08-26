@@ -23,6 +23,7 @@ import {
   Stack
 } from 'phosphor-react';
 import { vectorStore } from '@/utils/vectorStore';
+import { useRAGTracker } from '@/utils/useRAGTracker';
 
 const mistralClient = new Mistral({
   apiKey: process.env.NEXT_PUBLIC_MISTRAL_API_KEY!
@@ -106,6 +107,9 @@ const ContractDocsGenerator = () => {
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
+  
+  // RAG tracking hook - same as test case generator
+  const { trackRAGSearch } = useRAGTracker();
 
   const addDebugInfo = (message: string) => {
   console.log(message);
@@ -138,6 +142,7 @@ const generateDocs = async () => {
     
     try {
       addDebugInfo('🔍 Searching for similar contracts via API...');
+      const searchStartTime = performance.now();
       
       // Call our API route instead of importing vectorStore directly
       const ragResponse = await fetch('/api/search-similar', {
@@ -151,10 +156,18 @@ const generateDocs = async () => {
         }),
       });
 
+      const searchDuration = performance.now() - searchStartTime;
+
       if (ragResponse.ok) {
         const ragData = await ragResponse.json();
         similarContracts = ragData.results || [];
         addDebugInfo(`📊 Found ${similarContracts.length} similar contracts`);
+        
+        // Track successful RAG search on client-side (same as test case generator)
+        if (ragData.trackingData) {
+          trackRAGSearch(ragData.trackingData, searchDuration, true);
+          addDebugInfo(`✅ RAG metrics tracked: ${ragData.trackingData.resultsCount} results, ${ragData.trackingData.utilizationRate.toFixed(1)}% utilization`);
+        }
         
         if (similarContracts.length > 0) {
           ragContext = `
@@ -169,9 +182,31 @@ Notes: ${c.metadata?.documentationNotes}
         }
       } else {
         addDebugInfo('⚠️ RAG API call failed, proceeding without context');
+        // Track failed RAG search (same as test case generator)
+        trackRAGSearch({
+          query: contractCode.substring(0, 200),
+          resultsCount: 0,
+          averageScore: 0,
+          maxScore: 0,
+          minScore: 0,
+          totalContextLength: 0,
+          relevantContextLength: 0,
+          utilizationRate: 0
+        }, searchDuration, false, 'API call failed');
       }
     } catch (ragError) {
       addDebugInfo(`⚠️ RAG failed: ${(ragError as Error).message} - continuing without context`);
+      // Track failed RAG search with error details (same as test case generator)
+      trackRAGSearch({
+        query: contractCode.substring(0, 200),
+        resultsCount: 0,
+        averageScore: 0,
+        maxScore: 0,
+        minScore: 0,
+        totalContextLength: 0,
+        relevantContextLength: 0,
+        utilizationRate: 0
+      }, 0, false, (ragError as Error).message);
     }
 
     // Build the enhanced prompt with RAG context
@@ -284,6 +319,7 @@ ${contractCode}
     
     if (similarContracts.length > 0) {
       addDebugInfo(`📊 RAG enhanced documentation with ${similarContracts.length} similar contract patterns`);
+      addDebugInfo('💾 RAG metrics have been persisted to localStorage for analysis');
     }
     
   } catch (err) {
@@ -942,7 +978,7 @@ ${documentation.deploymentNotes.length > 0 ? documentation.deploymentNotes.map(n
         </div>
       </div>
       
-      <style jsx>{`
+      <style>{`
         .custom-scrollbar {
           scrollbar-width: thin;
           scrollbar-color: rgba(255, 255, 255, 0.3) transparent;

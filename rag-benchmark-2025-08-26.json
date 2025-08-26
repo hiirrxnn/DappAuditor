@@ -1,0 +1,104 @@
+{
+  "timestamp": 1756229762169,
+  "vectorDbSize": 359,
+  "results": [
+    {
+      "query": "ERC20 token security vulnerabilities",
+      "category": "test-case",
+      "responseTime": 5457,
+      "resultsCount": 5,
+      "averageScore": 0.5627008692,
+      "maxScore": 0.568849266,
+      "success": true,
+      "timestamp": 1756229753807
+    },
+    {
+      "query": "reentrancy attack patterns",
+      "category": "test-case",
+      "responseTime": 885,
+      "resultsCount": 5,
+      "averageScore": 0.5469588755999999,
+      "maxScore": 0.551263392,
+      "success": true,
+      "timestamp": 1756229754692
+    },
+    {
+      "query": "access control testing scenarios",
+      "category": "test-case",
+      "responseTime": 1152,
+      "resultsCount": 5,
+      "averageScore": 0.4682398795999999,
+      "maxScore": 0.513593793,
+      "success": true,
+      "timestamp": 1756229755844
+    },
+    {
+      "query": "smart contract function documentation",
+      "category": "documentation",
+      "responseTime": 904,
+      "resultsCount": 5,
+      "averageScore": 0.6240854205999999,
+      "maxScore": 0.628822,
+      "success": true,
+      "timestamp": 1756229756748
+    },
+    {
+      "query": "solidity best practices examples",
+      "category": "documentation",
+      "responseTime": 1208,
+      "resultsCount": 5,
+      "averageScore": 0.6291452802,
+      "maxScore": 0.644486189,
+      "success": true,
+      "timestamp": 1756229757956
+    },
+    {
+      "query": "contract upgrade patterns",
+      "category": "documentation",
+      "responseTime": 925,
+      "resultsCount": 5,
+      "averageScore": 0.5599967716,
+      "maxScore": 0.56764704,
+      "success": true,
+      "timestamp": 1756229758881
+    },
+    {
+      "query": "common smart contract bugs",
+      "category": "audit",
+      "responseTime": 1170,
+      "resultsCount": 5,
+      "averageScore": 0.5641792894,
+      "maxScore": 0.578973472,
+      "success": true,
+      "timestamp": 1756229760051
+    },
+    {
+      "query": "gas optimization patterns",
+      "category": "audit",
+      "responseTime": 896,
+      "resultsCount": 5,
+      "averageScore": 0.45918224259999996,
+      "maxScore": 0.471815467,
+      "success": true,
+      "timestamp": 1756229760947
+    },
+    {
+      "query": "security review checklist items",
+      "category": "audit",
+      "responseTime": 1221,
+      "resultsCount": 5,
+      "averageScore": 0.406677407,
+      "maxScore": 0.420030087,
+      "success": true,
+      "timestamp": 1756229762168
+    }
+  ],
+  "summary": {
+    "totalQueries": 9,
+    "successfulQueries": 9,
+    "successRate": 100,
+    "avgResponseTime": 1535.3333333333333,
+    "avgRelevanceScore": 0.5356851150888889,
+    "avgResultsPerQuery": 5
+  }
+}

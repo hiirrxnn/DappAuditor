@@ -1,5 +1,5 @@
 {
-  "name": "auditfi",
+  "name": "dappauditor",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "init-pinecone": "dotenv -e .env.local -- npx tsx src/scripts/initializePinecone.ts"
+    "init-pinecone": "dotenv -e .env.local -- npx tsx src/scripts/initializePinecone.ts",
+    "init-enhanced-rag": "dotenv -e .env.local -- npx tsx src/scripts/enhancedInitializePinecone.ts",
+    "init-enhanced-rag-direct": "npx tsx --env-file=.env.local src/scripts/enhancedInitializePinecone.ts",
+    "test-enhanced-rag": "npx tsx src/scripts/testEnhancedRag.ts"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -21,6 +24,7 @@
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.1",
     "dotenv-cli": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.0",
@@ -45,7 +49,6 @@
     "@tanstack/react-query": "^5.74.4",
     "@types/aos": "^3.0.7",
     "aos": "^2.3.4",
-    "dotenv": "^17.2.1",
     "ethers": "^6.13.4",
     "openai": "^5.13.1",
     "phosphor-react": "^1.4.1",

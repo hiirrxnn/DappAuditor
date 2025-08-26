@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mistral } from "@mistralai/mistralai";
 import { z } from "zod";
 import { ethers } from 'ethers';
+import { performanceTracker } from '@/utils/performanceTracker';
+import { blockchainTracker } from '@/utils/blockchainTracker';
 import { 
   Star,
   Warning,
@@ -256,6 +258,13 @@ export default function AuditPage() {
 
     setTxState({ isProcessing: true, hash: null, error: null });
 
+    // Start blockchain tracking
+    const trackingId = blockchainTracker.startTransaction(
+      CONTRACT_ADDRESSES.sepolia,
+      'registerAudit',
+      currentChain || 'sepolia'
+    );
+
     try {
       const connection = await connect();
       if (!connection) {
@@ -284,7 +293,18 @@ export default function AuditPage() {
         result.summary
       );
 
+      // Update tracking with transaction hash
+      blockchainTracker.updateTransactionHash(trackingId, tx.hash);
+
       const receipt = await tx.wait();
+      
+      // Complete blockchain tracking
+      blockchainTracker.completeTransaction(trackingId, true, {
+        gasUsed: receipt?.gasUsed,
+        effectiveGasPrice: receipt?.gasPrice || receipt?.effectiveGasPrice,
+        blockNumber: receipt?.blockNumber
+      });
+
       setTxState({
         isProcessing: false,
         hash: receipt?.hash || tx.hash,
@@ -293,6 +313,12 @@ export default function AuditPage() {
       setIsReviewBlurred(false);
     } catch (error) {
       console.error('Failed to register audit:', error);
+      
+      // Complete blockchain tracking with error
+      blockchainTracker.completeTransaction(trackingId, false, undefined, 
+        (error instanceof Error) ? error.message : 'Failed to register audit'
+      );
+
       setTxState({
         isProcessing: false,
         hash: null,
@@ -365,6 +391,9 @@ export default function AuditPage() {
     setIsAnalyzing(true);
     setIsReviewBlurred(true);
 
+    // Start performance tracking
+    const trackingId = performanceTracker.startMistralAnalysis("mistral-small-latest");
+
     try {
       let analysisResult: AuditResult;
 
@@ -425,10 +454,32 @@ export default function AuditPage() {
         }
         const parsedResponse = JSON.parse(responseText);
         analysisResult = VulnerabilitySchema.parse(parsedResponse);
+        
+        // Track token usage if available in response
+        const usage = response.usage;
+        if (usage) {
+          performanceTracker.trackTokenUsage(
+            trackingId,
+            usage.promptTokens || 0,
+            usage.completionTokens || 0,
+            usage.totalTokens || 0
+          );
+        }
+        
+        // Complete performance tracking - success
+        performanceTracker.completeMistralAnalysis(trackingId, true, usage ? {
+          promptTokens: usage.promptTokens || 0,
+          completionTokens: usage.completionTokens || 0,
+          totalTokens: usage.totalTokens || 0
+        } : undefined);
+        
       } else {
         // Use mock analysis if Mistral client is not available
         console.warn('Using mock analysis - Mistral API not configured');
         analysisResult = generateMockAnalysis(code);
+        
+        // Complete performance tracking for mock - still successful
+        performanceTracker.completeMistralAnalysis(trackingId, true);
       }
 
       // Apply star rating adjustments based on vulnerabilities
@@ -446,11 +497,28 @@ export default function AuditPage() {
       setShowResult(true);
       setCooldown(COOLDOWN_TIME);
       
+      // Log performance metrics to console
+      const metrics = performanceTracker.getMetrics();
+      console.log('📊 Performance Metrics:', {
+        averageResponseTime: `${metrics.averageResponseTime.toFixed(2)}ms`,
+        successRate: `${metrics.successRate.toFixed(1)}%`,
+        totalAnalyses: metrics.totalAnalyses,
+        averageTokenUsage: Math.round(metrics.averageTokenUsage)
+      });
+      
       await detectCurrentNetwork();
       
     } catch (error) {
       console.error('Analysis failed:', error);
       setError('Analysis failed. Please try again in a few moments.');
+      
+      // Complete performance tracking - failure
+      performanceTracker.completeMistralAnalysis(
+        trackingId, 
+        false, 
+        undefined, 
+        (error instanceof Error) ? error.message : 'Analysis failed'
+      );
     } finally {
       setIsAnalyzing(false);
     }
