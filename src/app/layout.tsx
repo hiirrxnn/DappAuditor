@@ -89,7 +89,7 @@ function MainLayout({ children }: RootLayoutProps) {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-1">
               {/* Nav Links */}
-              <NavLink href="/contract-builder">Contract-builder</NavLink>
+              {/* <NavLink href="/contract-builder">Contract-builder</NavLink> */}
               <NavLink href="/testcase-generator">Test</NavLink>
               <NavLink href="/audit">Audit</NavLink>
               <NavLink href="/reports">Reports</NavLink>
@@ -199,7 +199,7 @@ function MainLayout({ children }: RootLayoutProps) {
             className="md:hidden bg-dark-50/90 backdrop-blur-md border-b border-gray-800"
           >
             <div className="px-4 pt-2 pb-3 space-y-1">
-              <MobileNavLink href="/contract-builder">Contract-builder</MobileNavLink>
+              {/* <MobileNavLink href="/contract-builder">Contract-builder</MobileNavLink> */}
               <MobileNavLink href="/testcase-generator">Test</MobileNavLink>
               <MobileNavLink href="/audit">Audit</MobileNavLink>
               <MobileNavLink href="/reports">Reports</MobileNavLink>
